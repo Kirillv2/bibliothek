@@ -1,0 +1,9 @@
+{
+  "_hinweis": "Gehört der Konfigurationsrolle. Werte sind ein Vorschlag und müssen vom Team bestätigt werden. Agenten ändern diese Datei nicht.",
+  "leihfristTage":            { "standard": 28,  "min": 7,  "max": 90,  "quelle": "E03-US01-FR02" },
+  "ausleihlimitProMitglied":  { "standard": 5,   "min": 1,  "max": 20,  "quelle": "E03-US01-FR03" },
+  "maxVerlaengerungen":       { "standard": 2,   "min": 0,  "max": 5,   "quelle": "E03-US02-FR02" },
+  "mahnTagessatzEuro":        { "standard": 0.5, "min": 0,  "max": 5,   "quelle": "E04-US02-FR02" },
+  "erinnerungVorlaufTage":    { "standard": 2,   "min": 0,  "max": 14,  "quelle": "E04-US01-FR02" },
+  "abholfristVormerkungTage": { "standard": 3,   "min": 1,  "max": 14,  "quelle": "E05-US01-FR03" }
+}
