@@ -1,6 +1,6 @@
 # ADR 005: Exemplarstatus wird abgeleitet, Ausleihe in einer Transaktion
 
-- Status: Vorgeschlagen (Gate 1)
+- Status: Entschieden (Agenten im Auftrag von KiKo); Freigabe an Gate 1
 - Bezug: E01-US01-FR03, E01-US02-FR01, E02-US02-FR02, E02-US02-FR03, E03-US01-FR01, E03-US01-FR04, E03-US03-FR03, NFR06
 
 ## Kontext
@@ -14,15 +14,15 @@ Die Spezifikation verlangt:
 
 Wird der Status zusätzlich als Spalte gespeichert, kann er von den Ausleihvorgängen abweichen.
 
-## Entscheidung (Vorschlag)
+## Entscheidung
 
 1. **Kein gespeicherter Status.** Der Status eines Exemplars wird aus den Daten abgeleitet, in dieser Reihenfolge:
    1. `AUSGELIEHEN` – es gibt einen Ausleihvorgang mit `returnedAt = null` (Anzeige mit dessen `dueDate`)
    2. `VORGEMERKT` – eine Vormerkung im Status `ABHOLBEREIT` ist diesem Exemplar zugeordnet (E03-US03-FR03, ab F-10)
-   3. `GESPERRT` – der Zustand macht das Exemplar nicht ausleihbar (mindestens `VERLOREN`, E02-US02-FR02; weitere siehe offene Frage OF-D2 im Datenmodell)
+   3. `GESPERRT` – der Zustand macht das Exemplar nicht ausleihbar (nur `VERLOREN`, E02-US02-FR02; Entscheidung OF-D2 in ADR 009); angezeigt als „nicht verfügbar“
    4. `VERFUEGBAR` – sonst
 2. Die Ableitung ist eine reine Funktion in `src/lib/` (`leiteExemplarstatusAb`), die Anzahl verfügbarer Exemplare zählt `VERFUEGBAR`. Für die Katalogsuche (NFR02) wird dieselbe Regel als SQL-Abfrage umgesetzt; ein Integrationstest prüft, dass beide gleich zählen.
-3. **Ausleihe in einer Transaktion:** Exemplar auswählen, Limit und Mahnung prüfen, Ausleihvorgang anlegen. Der partielle eindeutige Index aus ADR 002 verhindert doppelte offene Ausleihvorgänge auch bei gleichzeitigen Anfragen. Schlägt das Einfügen wegen des Index fehl, wird das nächste verfügbare Exemplar versucht; gibt es keins mehr, lautet das Ergebnis `KEIN_EXEMPLAR_VERFUEGBAR`.
+3. **Ausleihe in einer Transaktion:** Exemplar auswählen, Limit und Mahnung prüfen, Ausleihvorgang anlegen. Der partielle eindeutige Index aus ADR 002 verhindert doppelte offene Ausleihvorgänge auch bei gleichzeitigen Anfragen. Gewählt wird das verfügbare Exemplar mit der kleinsten Inventarnummer (OF-F05-1). Schlägt das Einfügen wegen des Index fehl, wird das nächste verfügbare Exemplar versucht; gibt es keins mehr, lautet das Ergebnis `KEIN_EXEMPLAR_VERFUEGBAR`.
 4. Rückgabe und Zuordnung an eine Vormerkung (E03-US03-FR03) laufen ebenfalls in einer Transaktion.
 
 ## Begründung
@@ -38,4 +38,4 @@ Wird der Status zusätzlich als Spalte gespeichert, kann er von den Ausleihvorg�
 ## Folgen
 
 - Testing prüft NFR06 mit parallelen Ausleihanfragen auf das letzte verfügbare Exemplar (Integrationstest).
-- Archivierte Titel: siehe offene Frage OF-D4 im Datenmodell.
+- Archivierte Titel zählen nicht zum öffentlichen Katalog und sind nicht ausleihbar (OF-D4, ADR 009).

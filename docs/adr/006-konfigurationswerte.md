@@ -1,13 +1,13 @@
 # ADR 006: Konfigurationswerte aus `config/` und Admin-Einstellung
 
-- Status: Vorgeschlagen (Gate 1)
+- Status: Entschieden (Agenten im Auftrag von KiKo); Freigabe an Gate 1
 - Bezug: E03-US01-FR02, E03-US01-FR03, E03-US02-FR02, E04-US01-FR02, E04-US02-FR02, E05-US01-FR03, E06-US02-FR02, `CLAUDE.md` „Verboten für alle Agenten“
 
 ## Kontext
 
 Leihfrist, Ausleihlimit, maximale Verlängerungen, Mahn-Tagessatz, Erinnerungsvorlauf und Abholfrist sind konfigurierbar. Kein Agent darf Werte festlegen oder hart kodieren. Die Defaults und Grenzen stehen in `config/system.defaults.json` (gehört der Konfigurationsrolle). Ab Woche 3 kann der Administrator die Werte in der App ändern (E06-US02-FR02, F-12).
 
-## Entscheidung (Vorschlag)
+## Entscheidung
 
 1. Ein Modul `src/server/settings/` ist die **einzige** Stelle, die Konfigurationswerte liest:
    - `getSetting(name)` liefert den gültigen Wert.

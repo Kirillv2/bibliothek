@@ -1,6 +1,6 @@
 # ADR 003: Authentifizierung mit eigener Sitzung, Seed-Nutzer in Woche 1
 
-- Status: Vorgeschlagen (Gate 1)
+- Status: Entschieden (Agenten im Auftrag von KiKo); Freigabe an Gate 1
 - Bezug: E06-US01-FR01, E06-US01-FR02, NFR03, F-05 … F-07 (Woche 1), F-11 (Woche 3)
 
 ## Kontext
@@ -9,7 +9,7 @@ Ausleihen (E03) und Vormerken (E05) setzen eine aktive Anmeldung voraus (E06-US0
 
 Die Spezifikation verlangt: Anmeldung über E-Mail und Passwort, Passwörter nur als Hash (E06-US01-FR01, NFR03).
 
-## Entscheidung (Vorschlag)
+## Entscheidung
 
 1. **Eine Auth-Schnittstelle ab Woche 1** unter `src/server/auth/`:
    - `getSession()` liefert den angemeldeten Nutzer (`id`, `role`) oder `null`.

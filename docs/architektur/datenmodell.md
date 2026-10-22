@@ -1,6 +1,6 @@
 # Datenmodell (alle Epics E01–E07)
 
-- Status: Vorgeschlagen (Gate 1)
+- Status: Entschieden (Agenten im Auftrag von KiKo, Entscheidungen in [ADR 009](../adr/009-entscheidungen-zu-luecken-der-spezifikation.md)); Freigabe an Gate 1
 - Bezug: Spezifikation 1.4 (Glossar), E01–E07, NFR03, NFR04, NFR06
 - Code-Namen: [ADR 001](../adr/001-fachbegriffe-code-namen.md) · Datenbank: [ADR 002](../adr/002-persistenz-datenbank.md) · Status-Ableitung: [ADR 005](../adr/005-exemplarstatus-und-datenintegritaet.md) · Datum: [ADR 008](../adr/008-datum-und-zeitzone.md)
 
@@ -33,7 +33,7 @@ Legende Spalte „Woche“: in welcher Woche die Entität zum ersten Mal fachlic
 | `id` | UUID | ja | |
 | `email` | Text | ja | eindeutig, klein geschrieben gespeichert (E06-US01-FR01) |
 | `passwordHash` | Text | ja | nur Hash, nie Klartext (E06-US01-FR01, NFR03; Verfahren ADR 003) |
-| `role` | `MITGLIED` \| `BIBLIOTHEKAR` \| `ADMINISTRATOR` | ja | E06-US02-FR01; siehe OF-D7 |
+| `role` | `MITGLIED` \| `BIBLIOTHEKAR` \| `ADMINISTRATOR` | ja | E06-US02-FR01; genau eine Rolle je Konto (OF-D7) |
 | `createdAt` | Zeitstempel | ja | |
 
 Der **Gast** hat keinen Datensatz. Das **System** ist kein Nutzer, sondern ein Job mit Secret (ADR 007).
@@ -55,11 +55,11 @@ Der **Gast** hat keinen Datensatz. Das **System** ist kein Nutzer, sondern ein J
 | `id` | UUID | ja | |
 | `title` | Text | ja | E02-US01-FR01 |
 | `author` | Text | ja | E02-US01-FR01 |
-| `category` | Text | ja | E02-US01-FR01; Form siehe OF-D5 |
+| `category` | Text | ja | E02-US01-FR01; Freitext (OF-D5) |
 | `isbn` | Text | nein | E02-US01-FR01 |
 | `description` | Text | nein | E02-US01-FR01 |
-| `publicationYear` | Ganzzahl | nein | **nicht** in E02-US01-FR01, aber Filter/Sortierung in E01-US01-FR02 → OF-D1 |
-| `archivedAt` | Zeitstempel | nein | gesetzt = archiviert/deaktiviert (E02-US01-FR03) |
+| `publicationYear` | Ganzzahl | nein | optional; nötig für Filter/Sortierung in E01-US01-FR02, in E02-US01-FR01 nicht genannt (OF-D1) |
+| `archivedAt` | Zeitstempel | nein | gesetzt = archiviert/deaktiviert (E02-US01-FR03); Folgen siehe OF-D4 |
 | `createdAt`, `updatedAt` | Zeitstempel | ja | |
 
 ### `Copy` – Exemplar (Woche 1)
@@ -68,8 +68,8 @@ Der **Gast** hat keinen Datensatz. Das **System** ist kein Nutzer, sondern ein J
 |---|---|---|---|
 | `id` | UUID | ja | |
 | `titleId` | → Title | ja | |
-| `inventoryNumber` | Text | ja | eindeutig, vom System beim Anlegen vergeben (E02-US02-FR01); Format OF-D6 |
-| `condition` | `GUT` \| `BESCHAEDIGT` \| `VERLOREN` | ja | E02-US02-FR02 („z. B.“) → OF-D3; `VERLOREN` ist nicht ausleihbar |
+| `inventoryNumber` | Text | ja | eindeutig, vom System beim Anlegen fortlaufend vergeben, Format `INV-000042` (E02-US02-FR01, OF-D6) |
+| `condition` | `GUT` \| `BESCHAEDIGT` \| `VERLOREN` | ja | E02-US02-FR02 (OF-D3); Standard beim Anlegen `GUT`; nur `VERLOREN` ist nicht ausleihbar (OF-D2) |
 | `createdAt` | Zeitstempel | ja | |
 
 Der **Status** (verfügbar / ausgeliehen / vorgemerkt / gesperrt) wird **nicht gespeichert**, sondern abgeleitet (ADR 005).
@@ -103,7 +103,7 @@ Constraint **NFR06:** `UNIQUE (copyId) WHERE returnedAt IS NULL` (ADR 002).
 | `settledById` | → User | nein | Bibliothekar, der beglichen markiert |
 
 „Offene Mahnung“ heißt: `settledAt IS NULL`. Das betroffene Exemplar ergibt sich über `loanId`.
-Ob eine Mahnung durch Verlängerung „gestoppt“ werden kann (E03-US02-FR03), ist offen → Spec F-06.
+Verlängerung und Mahnung: Eine Verlängerung am oder vor der Fälligkeit verhindert die Mahnung; eine Verlängerung danach lässt sie offen (E03-US02-FR03, OF-F06-3/-4).
 
 ### `Reservation` – Vormerkung (Woche 2; in Woche 1 gelesen von F-02, F-03, F-06, F-07)
 
@@ -132,7 +132,7 @@ Ob eine Mahnung durch Verlängerung „gestoppt“ werden kann (E03-US02-FR03), 
 | `createdAt` | Zeitstempel | ja | |
 | `readAt` | Zeitstempel | nein | |
 
-Kanal (Anzeige in der App oder E-Mail): OF-D8.
+Kanal: nur Anzeige in der App, kein E-Mail-Versand (OF-D8).
 
 ### `SystemSetting` – Systemparameter (Woche 3; in Woche 1 nur gelesen)
 
@@ -163,15 +163,17 @@ Kanal (Anzeige in der App oder E-Mail): OF-D8.
 | Überschrittene Tage | `Rückgabedatum bzw. heute − dueDate` in Kalendertagen | E04-US02-FR02, ADR 008 |
 | Mahngebühr (solange offen) | überschrittene Tage × `mahnTagessatzEuro` | E04-US02-FR02 |
 
-## Offene Fragen zum Datenmodell (Gate 1)
+## Entscheidungen zum Datenmodell
 
-| ID | Frage | Quelle | Vorschlag |
-|---|---|---|---|
-| OF-D1 | Erscheinungsjahr ist Filter- und Sortierkriterium (E01-US01-FR02), fehlt aber in den Feldern beim Anlegen (E02-US01-FR01). Soll es ein optionales Feld des Titels sein? | E01-US01-FR02, E02-US01-FR01 | optionales Feld `publicationYear`; Titel ohne Jahr stehen beim Sortieren am Ende |
-| OF-D2 | Was heißt „gesperrt“ (E02-US02-FR03)? Nur `VERLOREN`, auch `BESCHAEDIGT`, oder eine eigene Sperre durch den Bibliothekar? | E02-US02-FR02, FR03 | gesperrt = Zustand `VERLOREN`; `BESCHAEDIGT` bleibt ausleihbar, solange das Team nichts anderes beschließt |
-| OF-D3 | Welche Zustände gibt es genau? Die Spezifikation nennt „z. B. gut, beschädigt, verloren“. | E02-US02-FR02 | genau diese drei |
-| OF-D4 | Was passiert mit archivierten Titeln? Im Katalog ausgeblendet? Exemplare noch ausleihbar? Wieder aktivierbar? | E02-US01-FR03 | im öffentlichen Katalog ausgeblendet, nicht ausleihbar, für Bibliothekare sichtbar |
-| OF-D5 | Ist die Kategorie Freitext oder eine feste Liste? Wer pflegt die Liste? | E01-US01-FR02, E02-US01-FR01 | Freitext; Filter bietet die vorhandenen Werte an |
-| OF-D6 | Format der Inventarnummer? | E02-US02-FR01 | fortlaufende Nummer mit Präfix, Format legt das Team fest |
-| OF-D7 | Hat ein Nutzer genau eine Rolle? Dürfen Bibliothekar und Administrator auch selbst ausleihen? Hat der Administrator auch Bibliothekarsrechte? | 1.3, E06-US02-FR01 | genau eine Rolle; Rechte nur laut Rechte-Matrix, keine Vererbung |
-| OF-D8 | Wie wird benachrichtigt (in der App, E-Mail)? | E04-US01-FR02, E05-US01-FR03 | Anzeige in der App (kein externer Dienst nötig); Entscheidung spätestens zur Spec F-08 |
+Begründung, Zitat aus der Spezifikation und Einordnung (abgeleitet oder Annahme) stehen in [ADR 009](../adr/009-entscheidungen-zu-luecken-der-spezifikation.md).
+
+| ID | Entscheidung | Art |
+|---|---|---|
+| OF-D1 | Erscheinungsjahr ist ein **optionales** Feld des Titels; Titel ohne Jahr stehen beim Sortieren nach Jahr am Ende und fallen bei einem Jahresfilter heraus | Abgeleitet (optional: Annahme) |
+| OF-D2 | Gesperrt = Zustand `VERLOREN`; `BESCHAEDIGT` ist ausleihbar; keine manuelle Sperre | Annahme |
+| OF-D3 | Zustände genau `GUT`, `BESCHAEDIGT`, `VERLOREN` | Annahme |
+| OF-D4 | Archiviert = deaktiviert: nicht im öffentlichen Katalog, Detailseite für Gast/Mitglied 404, nicht ausleihbar, nicht vormerkbar, keine neuen Exemplare; Bibliothekare sehen ihn in der Verwaltung; kein Reaktivieren | Abgeleitet |
+| OF-D5 | Kategorie ist Freitext; Filter bietet vorhandene Werte aktiver Titel an | Annahme |
+| OF-D6 | Inventarnummer fortlaufend vom System, Format `INV-` + sechs Ziffern | Annahme |
+| OF-D7 | Genau eine Rolle je Konto; Rechte nur laut Rechte-Matrix | Annahme |
+| OF-D8 | Benachrichtigung nur in der App | Annahme |

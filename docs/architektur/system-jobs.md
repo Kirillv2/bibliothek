@@ -1,6 +1,6 @@
 # Konzept: Zeitgesteuerte System-Jobs
 
-- Status: Vorgeschlagen (Gate 1), umgesetzt ab Woche 2 (F-08, F-09, F-10)
+- Status: Entschieden (Agenten im Auftrag von KiKo); Freigabe an Gate 1, umgesetzt ab Woche 2 (F-08, F-09, F-10)
 - Bezug: Rolle „System“ (1.3), E04-US01-FR01 … FR03, E04-US02-FR01, E05-US01-FR03, NFR04
 - Entscheidung: [ADR 007](../adr/007-system-jobs.md)
 
@@ -38,7 +38,8 @@ Pflichttest: Lauf zweimal mit demselben Stichtag → Datenbank nach dem zweiten 
 - Lokal: `curl -X POST -H "Authorization: Bearer $JOB_SECRET" http://localhost:3000/api/system/jobs/fristpruefung`
 - Tests rufen die Job-Funktion direkt mit fester Uhr auf; Security-Tests rufen den Endpunkt ohne/mit falschem Secret auf.
 
-## Offen
+## Entscheidungen
 
-- OF-J1 Scheduler und OF-J2 Uhrzeit: Konfigurationsrolle (ADR 007).
-- Fachliche Detailfragen (z. B. wiederholte Mahnungen, Kanal der Benachrichtigung OF-D8): Specs F-08 bis F-10.
+- OF-J1, OF-J2: geplanter GitHub-Actions-Workflow, einmal täglich nachts (ADR 007, ADR 009); `config-request` vor Woche 2.
+- Benachrichtigungen nur in der App (OF-D8).
+- Fachliche Detailfragen (z. B. wiederholte Mahnungen): Specs F-08 bis F-10.

@@ -1,13 +1,13 @@
 # ADR 004: Schichten und Ordnerstruktur
 
-- Status: Vorgeschlagen (Gate 1)
+- Status: Entschieden (Agenten im Auftrag von KiKo); Freigabe an Gate 1
 - Bezug: alle Features; Evaluation (Mutation Testing unter `src/lib/`)
 
 ## Kontext
 
 Mehrere Agenten arbeiten parallel an Features. Die Fachregeln (Fälligkeit, Gebühr, Verfügbarkeit, Warteschlange) sollen ohne Datenbank und ohne Next.js testbar sein. Die Evaluation führt Mutation Testing unter `src/lib/` aus.
 
-## Entscheidung (Vorschlag)
+## Entscheidung
 
 Next.js App Router mit drei Schichten:
 

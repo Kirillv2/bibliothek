@@ -1,6 +1,6 @@
 # Security-Architektur
 
-- Status: Vorgeschlagen (Gate 1)
+- Status: Entschieden (Agenten im Auftrag von KiKo); Freigabe an Gate 1
 - Bezug: Spezifikation 1.3, E06-US01-FR01, E06-US01-FR02, NFR03, NFR04, NFR06
 - Zugehörig: [Rechte-Matrix](rechte-matrix.md) · [ADR 003 Authentifizierung](../adr/003-authentifizierung-sitzungen.md) · [ADR 007 System-Jobs](../adr/007-system-jobs.md)
 

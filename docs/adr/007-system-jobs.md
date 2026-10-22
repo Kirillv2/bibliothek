@@ -1,13 +1,13 @@
 # ADR 007: Zeitgesteuerte System-Jobs über geschützte Endpunkte
 
-- Status: Vorgeschlagen (Gate 1), umgesetzt ab Woche 2
+- Status: Entschieden (Agenten im Auftrag von KiKo); Freigabe an Gate 1, umgesetzt ab Woche 2
 - Bezug: E04-US01-FR01 … FR03, E04-US02-FR01, E05-US01-FR03, NFR04, Rolle „System“ (Spezifikation 1.3)
 
 ## Kontext
 
 Die Rolle „System“ führt zeitgesteuerte Prozesse aus: tägliche Fristprüfung mit Erinnerung, Markierung „überfällig“ und Mahnungserzeugung; Ablauf der Abholfrist bei Vormerkungen. NFR04 verlangt, dass die Fristprüfung reproduzierbar und idempotent läuft. `CLAUDE.md`: Jobs nur mit Job-Secret aufrufbar.
 
-## Entscheidung (Vorschlag)
+## Entscheidung
 
 1. **Jobs als Route Handler:** `POST /api/system/jobs/fristpruefung` und `POST /api/system/jobs/abholfristen`.
 2. **Schutz:** Header `Authorization: Bearer <JOB_SECRET>`. Vergleich mit `timingSafeEqual`. Ohne gültiges Secret: `401`, kein Hinweis, ob der Job existiert. Nutzer-Sitzungen (auch Administrator) reichen **nicht**.
@@ -18,7 +18,7 @@ Die Rolle „System“ führt zeitgesteuerte Prozesse aus: tägliche Fristprüfu
    - „Überfällig“-Markierung: setzt `overdueSince` nur, wenn es noch leer ist.
    - Damit kann ein abgebrochener Lauf einfach wiederholt werden.
 5. **Protokoll:** Jeder Lauf schreibt einen Datensatz in `job_runs` (Job, Stichtag, Start, Ende, Anzahl erzeugter Erinnerungen/Mahnungen/Abläufe, Fehler). Die Anzahl kommt aus der Datenbank, nicht aus einem Agenten.
-6. **Auslöser:** täglich durch einen Scheduler des Hosters (z. B. Vercel Cron) oder einen geplanten GitHub-Actions-Workflow. Die Wahl ist offen (OF-J1) und gehört der Konfigurationsrolle, weil sie `.github/` bzw. Hosting-Konfiguration betrifft.
+6. **Auslöser:** ein geplanter GitHub-Actions-Workflow ruft den Endpunkt einmal täglich nachts auf (OF-J1, OF-J2). Weil der Workflow unter `.github/` liegt, legt Planning dafür vor Woche 2 einen `config-request` an.
 
 ## Begründung
 
@@ -31,10 +31,10 @@ Die Rolle „System“ führt zeitgesteuerte Prozesse aus: tägliche Fristprüfu
 - **Datenbank-Cron (pg_cron):** nicht in PGlite und nicht bei jedem Anbieter verfügbar.
 - **„Schon gelaufen?“-Sperre je Tag:** ein abgebrochener Lauf könnte nicht wiederholt werden.
 
-## Offene Fragen
+## Entscheidungen (ADR 009)
 
-- OF-J1: Welcher Scheduler (Hoster-Cron oder GitHub Actions)? Entscheidung Konfigurationsrolle.
-- OF-J2: Uhrzeit des täglichen Laufs. Entscheidung Konfigurationsrolle.
+- OF-J1: Scheduler ist ein geplanter GitHub-Actions-Workflow (unabhängig vom Hoster, Läufe in GitHub nachvollziehbar). Annahme (Technik).
+- OF-J2: einmal täglich nachts, Vorschlag 02:00 Europe/Berlin; Verspätungen sind wegen Stichtag und Idempotenz unkritisch. Annahme (Technik).
 - Fachliche Fragen zu Erinnerung, Mahnung und Abholfrist klärt Planning in den Specs F-08 bis F-10.
 
 Details: `docs/architektur/system-jobs.md`.

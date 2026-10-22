@@ -1,6 +1,6 @@
 # ADR 002: Persistenz mit PostgreSQL und Drizzle ORM
 
-- Status: Vorgeschlagen (Gate 1)
+- Status: Entschieden (Agenten im Auftrag von KiKo); Freigabe an Gate 1
 - Bezug: NFR05 (gehostet oder lokal startbar), NFR06 (Datenintegrität), NFR04 (Idempotenz), `CLAUDE.md` „`npm ci` ohne `.env`“
 
 ## Kontext
@@ -14,7 +14,7 @@ Die App braucht eine Datenbank für Titel, Exemplare, Ausleihvorgänge, Mahnunge
 
 Im Moment enthält `package.json` noch keine Datenbank-Abhängigkeit.
 
-## Entscheidung (Vorschlag)
+## Entscheidung
 
 - **Datenbank:** PostgreSQL.
 - **Zugriff:** Drizzle ORM (typsicheres Schema in TypeScript, SQL-nahe Abfragen, Migrationen mit `drizzle-kit`).
@@ -41,6 +41,6 @@ Im Moment enthält `package.json` noch keine Datenbank-Abhängigkeit.
 
 ## Folgen
 
-- **Konfigurationsrolle:** Die Abhängigkeiten (`drizzle-orm`, `drizzle-kit`, `@electric-sql/pglite`, ein PostgreSQL-Treiber für den Betrieb) müssen in `package.json` aufgenommen werden. Das beantragt Planning nach Gate 1 als Issue mit Label `config-request`. Agenten ändern `package.json` nicht selbst.
+- **Konfigurationsrolle:** Die Abhängigkeiten (`drizzle-orm`, `drizzle-kit`, `@electric-sql/pglite`, ein PostgreSQL-Treiber für den Betrieb) müssen in `package.json` aufgenommen werden. Das beantragt Planning als Issue mit Label `config-request`. Agenten ändern `package.json` nicht selbst.
 - Schema und Migrationen liegen im Code (`src/server/db/`), das fachliche Modell beschreibt `docs/architektur/datenmodell.md`.
-- Der gehostete Dienst (Anbieter) ist noch offen und Sache der Konfigurationsrolle.
+- Der gehostete Dienst (Anbieter) wird erst zum ersten Deploy gebraucht und ist Sache der Konfigurationsrolle; für Entwicklung und Tests reicht PGlite.

@@ -1,13 +1,13 @@
 # ADR 008: Fälligkeit als Kalenderdatum in Europe/Berlin
 
-- Status: Vorgeschlagen (Gate 1)
+- Status: Entschieden (Agenten im Auftrag von KiKo); Freigabe an Gate 1
 - Bezug: E01-US02-FR01 (Anzeige TT.MM.JJJJ), E03-US01-FR01, E03-US02-FR03, E04-US01-FR01 … FR03, E04-US02-FR02
 
 ## Kontext
 
 Die Spezifikation rechnet in Tagen (Leihfrist, Vorlauf, überschrittene Tage) und zeigt die Fälligkeit als TT.MM.JJJJ. Mit Uhrzeiten und UTC-Zeitstempeln entstehen Fehler um Mitternacht und bei der Zeitumstellung.
 
-## Entscheidung (Vorschlag)
+## Entscheidung
 
 1. `startDate`, `dueDate` und Stichtage sind **Kalenderdaten ohne Uhrzeit** (`DATE` in der DB, eigener Typ `Datum` im Code, Format `JJJJ-MM-TT`).
 2. „Heute“ ist das Datum in der Zeitzone `Europe/Berlin` und kommt immer aus der injizierten Uhr (`Clock`, ADR 004).
@@ -23,7 +23,7 @@ Die Spezifikation rechnet in Tagen (Leihfrist, Vorlauf, überschrittene Tage) un
 
 - **Alles als UTC-Zeitstempel:** ein Ausleihvorgang um 23:30 hätte je nach Zeitzone eine andere Fälligkeit.
 
-## Offene Fragen
+## Entscheidungen (ADR 009)
 
-- OF-Z1: Zählen Wochenenden und Feiertage normal mit? Die Spezifikation sagt nichts dazu. Vorschlag: ja, reine Kalendertage. Entscheidung an Gate 1.
-- OF-Z2: Regel 4 (überfällig erst ab dem Tag nach der Fälligkeit) ist eine Auslegung von „Frist überschritten“. Bestätigung an Gate 1.
+- OF-Z1: Reine Kalendertage, Wochenenden und Feiertage zählen normal mit. Annahme (die Spezifikation rechnet nur in „Tagen“).
+- OF-Z2: Überfällig ab dem Tag nach der Fälligkeit (Regel 4). Abgeleitet aus Glossar 1.4: Fälligkeit ist das „Datum, bis zu dem ein Exemplar zurückgegeben werden muss“.

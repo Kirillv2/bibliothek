@@ -1,6 +1,6 @@
 # ADR 001: Fachbegriffe → Code-Namen
 
-- Status: Vorgeschlagen (Gate 1)
+- Status: Entschieden (Agenten im Auftrag von KiKo); Freigabe an Gate 1
 - Bezug: Spezifikation 1.4 (Glossar), `CLAUDE.md` „Fachbegriffe“, alle Features F-01 … F-13
 
 ## Kontext
@@ -31,8 +31,8 @@ Im Code (TypeScript-Typen, Tabellen, Funktionen) gelten diese Namen. In der Ober
 | Gast | – | – | nicht angemeldet, kein Datensatz |
 | System (Automatik) | `SystemJob` | `job_runs` | zeitgesteuerte Prozesse |
 | Systemparameter | `SystemSetting` | `system_settings` | E06-US02-FR02 |
-| Kategorie | `category` | Spalte `category` | siehe offene Frage im Datenmodell |
-| Erscheinungsjahr | `publicationYear` | Spalte `publication_year` | siehe offene Frage im Datenmodell |
+| Kategorie | `category` | Spalte `category` | Freitext (ADR 009, OF-D5) |
+| Erscheinungsjahr | `publicationYear` | Spalte `publication_year` | optional (ADR 009, OF-D1) |
 
 Werte von Aufzählungen (Rollen, Zustände, Status) werden in Großbuchstaben auf Deutsch geschrieben (`VERLOREN`, `WARTEND`), damit sie in Tests und Oberfläche direkt erkennbar sind.
 

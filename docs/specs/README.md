@@ -22,19 +22,20 @@ Ein Feature F-xx entspricht genau einer User Story Enn-USnn (`CLAUDE.md`). Die Z
 
 | Dokument | Inhalt |
 |---|---|
-| [Datenmodell](../architektur/datenmodell.md) | Entitäten aller Epics, abgeleitete Werte, offene Fragen OF-D* |
+| [Datenmodell](../architektur/datenmodell.md) | Entitäten aller Epics, abgeleitete Werte, Entscheidungen OF-D* |
 | [Schnittstellen Woche 1](../architektur/schnittstellen.md) | Lese-Funktionen, Server Actions, Fehlercodes |
 | [System-Jobs](../architektur/system-jobs.md) | Konzept für die Rolle „System“ (ab Woche 2) |
-| [Rechte-Matrix](../security/rechte-matrix.md) | was jede der fünf Rollen darf, Pflicht-Rechte-Tests, OF-R* |
+| [Rechte-Matrix](../security/rechte-matrix.md) | was jede der fünf Rollen darf, Pflicht-Rechte-Tests, Entscheidungen OF-R* |
 | [Security-Architektur](../security/security-architektur.md) | Auth, Autorisierung, Jobs, Bedrohungen |
 | [ADR 001](../adr/001-fachbegriffe-code-namen.md) … [ADR 008](../adr/008-datum-und-zeitzone.md) | Architekturentscheidungen |
+| [ADR 009](../adr/009-entscheidungen-zu-luecken-der-spezifikation.md) | Entscheidungen zu allen Lücken der Spezifikation, mit Zitat und Kennzeichnung „Abgeleitet“ / „Annahme“ |
 
 ## Was an Gate 1 geprüft werden soll
 
 1. **Vollständigkeit:** Jede FR-ID der User Story hat einen Abschnitt mit Akzeptanzkriterien, keine FR fehlt, keine Anforderung ist hinzugekommen.
 2. **Querverweise:** Verweise der Spezifikation (z. B. E03-US03-FR03 → E05-US01) sind als eigene Akzeptanzkriterien drin.
-3. **Offene Fragen:** Für jede Frage (OF-…) den Vorschlag annehmen oder anders entscheiden. Die Antwort bitte als Kommentar ins Issue des Features (Woche-0-Fragen OF-D*, OF-R*, OF-Z*, OF-S*, OF-J* in den PR).
-4. **ADRs 001–008:** annehmen oder ändern. ADR 002 braucht danach einen `config-request` für neue Abhängigkeiten.
+3. **Entscheidungen (ADR 009):** Alle Lücken der Spezifikation sind entschieden. „Abgeleitet“ heißt: folgt aus dem zitierten Text. „Annahme“ heißt: die Spezifikation schweigt; diese Punkte im Zweifel beim Prof nachfragen (Liste am Ende von ADR 009). Wer anders entscheiden will, schreibt einen Kommentar ins Issue bzw. in den PR.
+4. **ADRs 001–009:** prüfen. Für ADR 002 gibt es einen `config-request` für die neuen Abhängigkeiten.
 5. **Rechte-Matrix:** stimmt die Zuordnung für alle fünf Rollen?
 
 Nach der Freigabe setzt ein Mensch am Issue das Label `gate-1-ok`. Erst dann schreibt der Testing-Agent die Tests (Gate 2).
