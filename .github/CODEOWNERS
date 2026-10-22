@@ -1,12 +1,12 @@
 # Konfigurationsmanagement: Änderungen an diesen Pfaden brauchen das Approval der Konfigurationsrolle.
 # @Kirillv2 durch den GitHub-Namen der Person ersetzen (z. B. @maxmuster).
-/config/              @Kirillv2
-/.github/             @Kirillv2
-/.claude/             @Kirillv2
-/CLAUDE.md            @Kirillv2
-/package.json         @Kirillv2
-/package-lock.json    @Kirillv2
-/vitest.config.ts     @Kirillv2
-/playwright.config.ts @Kirillv2
-/eslint.config.mjs    @Kirillv2
-/tsconfig.json        @Kirillv2
+/config/              @Kirillv2 @Jegor55
+/.github/             @Kirillv2 @Jegor55
+/.claude/             @Kirillv2 @Jegor55
+/CLAUDE.md            @Kirillv2 @Jegor55
+/package.json         @Kirillv2 @Jegor55
+/package-lock.json    @Kirillv2 @Jegor55
+/vitest.config.ts     @Kirillv2 @Jegor55
+/playwright.config.ts @Kirillv2 @Jegor55
+/eslint.config.mjs    @Kirillv2 @Jegor55
+/tsconfig.json        @Kirillv2 @Jegor55
