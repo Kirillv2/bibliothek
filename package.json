@@ -16,7 +16,10 @@
     "fr-abdeckung": "node scripts/fr-abdeckung.mjs"
   },
   "dependencies": {
+    "@electric-sql/pglite": "^0.5.11",
+    "drizzle-orm": "^0.45.4",
     "next": "16.4.2",
+    "postgres": "^3.4.9",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -26,6 +29,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^5.0.5",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
     "typescript": "^5",
