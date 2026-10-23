@@ -5,9 +5,22 @@ import { pruefeZugangsdaten } from "@/server/auth/anmeldung";
 import { beendeAktuelleSitzung, starteSitzung } from "@/server/auth/sitzung";
 import { holeDatenbank } from "@/server/db/verbindung";
 
-/** Nur Pfade innerhalb der App als Ziel nach der Anmeldung (kein offener Redirect). */
+const INTERN = "http://intern.invalid";
+
+/**
+ * Nur Pfade innerhalb der App als Ziel nach der Anmeldung (kein offener Redirect).
+ * Aufgelöst wie im Browser: `/\host`, Tabulatoren oder `/.//host` dürfen nicht auf eine fremde Herkunft führen.
+ */
 function sicheresZiel(wert: FormDataEntryValue | null): string {
-  return typeof wert === "string" && wert.startsWith("/") && !wert.startsWith("//") ? wert : "/";
+  if (typeof wert !== "string" || !wert.startsWith("/")) return "/";
+  let url: URL;
+  try {
+    url = new URL(wert, INTERN);
+  } catch {
+    return "/";
+  }
+  const pfad = url.pathname + url.search + url.hash;
+  return url.origin === INTERN && !pfad.startsWith("//") ? pfad : "/";
 }
 
 export async function anmelden(formular: FormData): Promise<void> {
