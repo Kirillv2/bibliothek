@@ -70,6 +70,8 @@ export async function rueckgabeErfassen(
 
         // E03-US03-FR02: verspätet → Gebühr an der offenen Mahnung des Vorgangs, sonst neue Mahnung (OF-F07-1).
         // Eine beglichene Mahnung bleibt, wie sie ist (AK-02.5).
+        // Stammt die offene Mahnung aus einer früheren Frist (verspätete Verlängerung, OF-F06-3), kommt die Gebühr
+        // für die aktuelle Frist dazu, damit alle überschrittenen Tage zählen (E04-US02-FR02). Annahme, Befund R-07.
         const gebuehr = berechneMahngebuehrCents({
           dueDate: vorgang.due_date,
           stichtag: heute,
@@ -77,13 +79,17 @@ export async function rueckgabeErfassen(
         });
         let mahngebuehrCents: number | undefined;
         if (gebuehr > 0) {
-          const gesetzt = zeilen<{ id: string }>(
+          const [gesetzt] = zeilen<{ fee_cents: number }>(
             await tx.execute(sql`
               INSERT INTO dunnings (loan_id, created_on, fee_cents) VALUES (${vorgang.id}, ${heute}, ${gebuehr})
-              ON CONFLICT (loan_id) DO UPDATE SET fee_cents = EXCLUDED.fee_cents WHERE dunnings.settled_at IS NULL
-              RETURNING id`),
+              ON CONFLICT (loan_id) DO UPDATE SET fee_cents = CASE
+                WHEN dunnings.created_on <= ${vorgang.due_date}::date THEN coalesce(dunnings.fee_cents, 0) + EXCLUDED.fee_cents
+                ELSE EXCLUDED.fee_cents
+              END
+              WHERE dunnings.settled_at IS NULL
+              RETURNING fee_cents`),
           );
-          if (gesetzt.length > 0) mahngebuehrCents = gebuehr;
+          if (gesetzt) mahngebuehrCents = gesetzt.fee_cents;
         }
 
         // E03-US03-FR03: an die früheste wartende Vormerkung des Titels; ein verlorenes Exemplar nicht (AK-03.6, OF-F07-5)
