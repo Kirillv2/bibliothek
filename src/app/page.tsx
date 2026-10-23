@@ -22,7 +22,8 @@ function text(wert: string | string[] | undefined): string | undefined {
 
 function ganzzahl(wert: string | string[] | undefined): number | undefined {
   const t = text(wert);
-  return t !== undefined && /^-?\d+$/.test(t.trim()) ? Number(t) : undefined;
+  // zu große Zahlen werden wie unlesbare ignoriert (sonst scheitert die Abfrage)
+  return t !== undefined && /^-?\d+$/.test(t.trim()) && Number.isSafeInteger(Number(t)) ? Number(t) : undefined;
 }
 
 /** URL-Parameter → Anfrage. Unlesbare Werte werden ignoriert, statt die Seite scheitern zu lassen. */
