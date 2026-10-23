@@ -142,19 +142,21 @@ export async function verlaengern(
 
         let mahngebuehrCents: number | undefined;
         if (verspaetet) {
-          // AK-03.5, OF-F06-3: überfällig ohne Mahnung → offene Mahnung mit Gebühr bis heute; höchstens eine je Vorgang
+          // AK-03.5, OF-F06-3: überfällig ohne Mahnung → offene Mahnung mit Gebühr bis heute; höchstens eine je Vorgang.
+          // Gibt es schon eine offene Mahnung, kommt die Gebühr dieser Frist dazu (OF-F09-1, Befund R-08).
           const gebuehr = berechneMahngebuehrCents({
             dueDate: alteFaelligkeit,
             stichtag: heute,
             tagessatzEuro: await getSetting(tx, "mahnTagessatzEuro"),
           });
-          const neu = zeilen<{ id: string }>(
+          const [gesetzt] = zeilen<{ fee_cents: number }>(
             await tx.execute(sql`
               INSERT INTO dunnings (loan_id, created_on, fee_cents) VALUES (${loanId}, ${heute}, ${gebuehr})
-              ON CONFLICT (loan_id) DO NOTHING
-              RETURNING id`),
+              ON CONFLICT (loan_id) DO UPDATE SET fee_cents = coalesce(dunnings.fee_cents, 0) + EXCLUDED.fee_cents
+              WHERE dunnings.settled_at IS NULL
+              RETURNING fee_cents`),
           );
-          if (neu.length > 0) mahngebuehrCents = gebuehr;
+          if (gesetzt) mahngebuehrCents = gesetzt.fee_cents;
         }
 
         return {
