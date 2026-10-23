@@ -1,5 +1,6 @@
 // Sitzung aus dem Cookie lesen und setzen (ADR 003). Nur auf dem Server verwenden.
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 import { holeDatenbank } from "../db/verbindung";
 import type { Sitzung } from "../kontext";
 import { beendeSitzung, erzeugeSitzung, findeSitzung } from "./anmeldung";
@@ -9,6 +10,8 @@ import { SITZUNGS_COOKIE } from "./cookie";
 export async function getSession(): Promise<Sitzung | null> {
   const token = (await cookies()).get(SITZUNGS_COOKIE)?.value;
   if (!token) return null;
+  // Gültigkeit hängt von der aktuellen Uhrzeit ab, also nie vorab rendern
+  await connection();
   return findeSitzung(await holeDatenbank(), token, new Date());
 }
 
