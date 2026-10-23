@@ -44,3 +44,6 @@ next-env.d.ts
 /coverage
 /playwright-report
 /test-results
+
+# lokale Datenbank (PGlite) und Seed-Zugänge
+/.data
