@@ -47,7 +47,7 @@ type GepruefteAnfrage = {
 };
 
 function istGanzzahl(wert: unknown): wert is number {
-  return typeof wert === "number" && Number.isInteger(wert);
+  return typeof wert === "number" && Number.isSafeInteger(wert);
 }
 
 function pruefe(
