@@ -118,6 +118,15 @@ Beim Zerlegen der Spezifikation (v1.0) sind Stellen aufgefallen, an denen der Te
 | OF-F07-4 | Zustand bei der Rückgabe ändern? | **Nicht Teil von F-07.** Der Bibliothekar ändert den Zustand bei Bedarf über F-04. | nicht gefordert | Annahme |
 | OF-F07-5 | Rückgabe eines als verloren markierten Exemplars | Die Rückgabe wird normal erfasst; der Zustand bleibt „verloren“, bis der Bibliothekar ihn ändert. | – | Annahme |
 
+### Vorgriff Woche 2: F-09 Mahnungen und F-10 Vormerkungen
+
+Gemeldet von Review & Security beim Prüfen von Woche 1 (R-06 in PR #16, R-08 in PR #18). Die Specs F-09 und F-10 übernehmen diese Entscheidungen.
+
+| ID | Frage | Entscheidung | Grundlage | Art |
+|---|---|---|---|---|
+| OF-F10-1 | Wird ein Exemplar, das **nicht durch eine Rückgabe** ausleihbar wird (neu angelegt, Zustand von „verloren“ zurück auf „gut“ oder „beschädigt“, Abholfrist einer Vormerkung abgelaufen), sofort frei, obwohl eine Vormerkung wartet? | **Nein.** Wartet für den Titel eine Vormerkung, wird jedes Exemplar, das ausleihbar wird, der **ersten wartenden** Vormerkung zugeordnet (Status `ABHOLBEREIT`, Abholfrist ab diesem Tag, Benachrichtigung „abholbereit“), genau wie bei der Rückgabe. Erst wenn keine Vormerkung wartet, ist es frei verfügbar. | E05 „vormerken, um es zu erhalten, sobald es frei ist“; E05-US01-FR02 Warteschlange je Titel; E05-US01-FR03 „verstreicht die Frist, rückt die nächste Person nach“; E03-US03-FR03 „statt frei verfügbar zu werden“ | Abgeleitet (Rückgabe und Fristablauf); neues Exemplar und Zustandswechsel: Annahme |
+| OF-F09-1 | Wie summiert sich die Mahngebühr, wenn ein Vorgang **mehrmals** überfällig wird (verspätete Verlängerung, danach wieder überfällig)? | **Eine Mahnung je Ausleihvorgang**, ihre Gebühr ist die **Summe aller Überschreitungen**: Jede Frist zählt die Tage von ihrer Fälligkeit bis zu dem Tag, an dem sie endet (verspätete Verlängerung oder Rückgabe), × `mahnTagessatzEuro` zu diesem Tag. Endet eine Frist durch eine verspätete Verlängerung und gibt es die Mahnung schon (vom System-Job), wird die Gebühr dieser Frist **hinzugerechnet** (nicht verworfen). Solange eine Frist noch läuft, zeigt die App zusätzlich die bis heute aufgelaufenen Tage an. Kommt Gebühr zu einer bereits beglichenen Mahnung hinzu, ist die Mahnung wieder offen. | E04-US02-FR01 „für jeden überfälligen Vorgang wird eine Mahnung … erzeugt“; E04-US02-FR02 „überschrittene Tage multipliziert mit einem … Tagessatz“; E03-US02-FR03 (Verlängerung danach stoppt die Mahnung nicht) | Abgeleitet (eine Mahnung je Vorgang, Gebühr aus allen überschrittenen Tagen); Wiedereröffnen nach Begleichen: Annahme |
+
 ## Annahmen, die beim Prof nachgefragt werden sollten
 
 Nach Wichtigkeit für Woche 1:
@@ -130,6 +139,11 @@ Nach Wichtigkeit für Woche 1:
 6. **OF-F01-4** Wie groß ist der „Testbestand“ für NFR02?
 7. **OF-D1** Erscheinungsjahr als optionales Feld?
 8. **OF-D8** Benachrichtigung nur in der App, ohne E-Mail?
+
+Für Woche 2:
+
+9. **OF-F10-1** Bekommt auch ein neu angelegtes oder wieder auffindbares Exemplar sofort die erste wartende Vormerkung?
+10. **OF-F09-1** Gebühr bei mehreren Überschreitungen eines Vorgangs: Summe in einer Mahnung? Wird eine beglichene Mahnung durch neue Gebühr wieder offen?
 
 Alle übrigen Annahmen sind technische oder Bedien-Details ohne Einfluss auf eine FR.
 
