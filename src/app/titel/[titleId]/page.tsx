@@ -51,6 +51,13 @@ export default async function TitelSeite({ params }: PageProps<"/titel/[titleId]
         {k.sitzung?.role === "MITGLIED" && (
           <AusleihenKnopf titleId={titel.titleId} angeboten={titel.aktionen.ausleihen} />
         )}
+        {k.sitzung === null && titel.exemplare.some((e) => e.status === "VERFUEGBAR") && (
+          // AK-05.1: ausleihen nur nach Anmeldung; der Gast bekommt den Weg dorthin
+          <p className="hinweis">
+            Zum Ausleihen bitte{" "}
+            <Link href={`/anmelden?weiter=${encodeURIComponent(`/titel/${titel.titleId}`)}`}>anmelden</Link>.
+          </p>
+        )}
         {titel.aktionen.vormerken &&
           (k.sitzung === null ? (
             // AK-03.3, OF-R2: ein Gast wird zur Anmeldung geleitet
