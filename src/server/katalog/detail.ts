@@ -8,6 +8,7 @@ import type { Zustand } from "../db/schema";
 import { istUuid } from "../eingabe";
 import { erfolg, fehler, type Ergebnis } from "../ergebnis";
 import type { Kontext } from "../kontext";
+import { lageDesExemplars } from "./verfuegbarkeit";
 
 export type ExemplarImDetail = { inventoryNumber: string; status: Exemplarstatus; faelligAm?: Datum };
 
@@ -56,9 +57,7 @@ export async function ladeTitelDetail(k: Kontext, titleId: string): Promise<Erge
   // AK-01.2, AK-01.10: alle Exemplare nach Inventarnummer, nur Fälligkeit und Zuordnung, keine Personen
   const exemplare = zeilen<{ inventory_number: string; condition: Zustand; due_date: Datum | null; abholbereit: boolean }>(
     await k.db.execute(sql`
-      SELECT c.inventory_number, c.condition,
-        (SELECT l.due_date::text FROM loans l WHERE l.copy_id = c.id AND l.returned_at IS NULL LIMIT 1) AS due_date,
-        EXISTS (SELECT 1 FROM reservations r WHERE r.copy_id = c.id AND r.status = 'ABHOLBEREIT') AS abholbereit
+      SELECT c.inventory_number, c.condition, ${lageDesExemplars("c")}
       FROM copies c
       WHERE c.title_id = ${titleId}
       ORDER BY c.inventory_number`),
