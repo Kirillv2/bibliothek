@@ -1,27 +1,12 @@
 // F-02 · E01-US02 · Detailseite eines Titels mit Exemplarstatus und Aktionen
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { formatiereDatum } from "@/lib/datum";
-import type { ExemplarImDetail } from "@/server/katalog/detail";
 import { ladeTitelDetail } from "@/server/katalog/detail";
 import { erstelleKontext } from "@/server/anfrage";
+import { statusText } from "../../exemplarstatus-text";
 import { AusleihenKnopf } from "./ausleihen-knopf";
 
 export const instant = false;
-
-/** E01-US02-FR01: verfügbar / ausgeliehen bis TT.MM.JJJJ / vorgemerkt; GESPERRT als „nicht verfügbar“ (OF-F02-2). */
-function statusText(exemplar: ExemplarImDetail): string {
-  switch (exemplar.status) {
-    case "AUSGELIEHEN":
-      return `ausgeliehen bis ${formatiereDatum(exemplar.faelligAm!)}`;
-    case "VORGEMERKT":
-      return "vorgemerkt";
-    case "GESPERRT":
-      return "nicht verfügbar";
-    default:
-      return "verfügbar";
-  }
-}
 
 export default async function TitelSeite({ params }: PageProps<"/titel/[titleId]">) {
   const { titleId } = await params;

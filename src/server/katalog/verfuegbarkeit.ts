@@ -17,3 +17,11 @@ export function anzahlVerfuegbar(titelAlias: string): SQL {
   const t = sql.raw(titelAlias);
   return sql`(SELECT count(*)::int FROM copies vc WHERE vc.title_id = ${t}.id AND ${exemplarIstVerfuegbar("vc")})`;
 }
+
+/** Spalten `due_date` (offener Ausleihvorgang) und `abholbereit` für `leiteExemplarstatusAb`, Exemplar-Alias `alias`. */
+export function lageDesExemplars(alias: string): SQL {
+  const c = sql.raw(alias);
+  return sql`
+    (SELECT l.due_date::text FROM loans l WHERE l.copy_id = ${c}.id AND l.returned_at IS NULL LIMIT 1) AS due_date,
+    EXISTS (SELECT 1 FROM reservations r WHERE r.copy_id = ${c}.id AND r.status = 'ABHOLBEREIT') AS abholbereit`;
+}

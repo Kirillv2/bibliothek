@@ -216,3 +216,8 @@ dl.metadaten dd {
   align-items: center;
   margin: 1rem 0;
 }
+
+.aktionen.eng {
+  margin: 0;
+  gap: 0.5rem;
+}
