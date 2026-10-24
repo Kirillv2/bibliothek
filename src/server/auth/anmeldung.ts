@@ -5,15 +5,12 @@ import { and, eq, gt } from "drizzle-orm";
 import type { Datenbank } from "../db";
 import { sessions, users } from "../db/schema";
 import type { Sitzung } from "../kontext";
+import { getSetting } from "../settings";
 import { hashePasswort, pruefePasswort } from "./passwort";
 
-/**
- * Laufzeit einer Sitzung. Annahme: technischer Wert der Konfigurationsrolle (ADR 003), steht noch nicht in config/;
- * bis dahin aus der Umgebung (SITZUNG_DAUER_STUNDEN), sonst ein Arbeitstag.
- */
-function sitzungsDauerMs(): number {
-  const stunden = Number(process.env.SITZUNG_DAUER_STUNDEN);
-  return (Number.isFinite(stunden) && stunden > 0 ? stunden : 8) * 3_600_000;
+/** Laufzeit einer Sitzung: technischer Wert der Konfigurationsrolle (ADR 003), über die Einstellungen (ADR 006). */
+async function sitzungsDauerMs(db: Datenbank): Promise<number> {
+  return (await getSetting(db, "sitzungDauerStunden")) * 3_600_000;
 }
 
 function hasheToken(token: string): string {
@@ -38,7 +35,7 @@ export async function pruefeZugangsdaten(db: Datenbank, email: string, passwort:
 /** Legt eine Sitzung an und gibt das Token für das Cookie zurück. */
 export async function erzeugeSitzung(db: Datenbank, userId: string, jetzt: Date): Promise<{ token: string; ablauf: Date }> {
   const token = randomBytes(32).toString("base64url");
-  const ablauf = new Date(jetzt.getTime() + sitzungsDauerMs());
+  const ablauf = new Date(jetzt.getTime() + (await sitzungsDauerMs(db)));
   await db.insert(sessions).values({ userId, tokenHash: hasheToken(token), expiresAt: ablauf });
   return { token, ablauf };
 }
