@@ -5,5 +5,6 @@
   "maxVerlaengerungen":       { "standard": 2,   "min": 0,  "max": 5,   "quelle": "E03-US02-FR02" },
   "mahnTagessatzEuro":        { "standard": 0.5, "min": 0,  "max": 5,   "quelle": "E04-US02-FR02" },
   "erinnerungVorlaufTage":    { "standard": 2,   "min": 0,  "max": 14,  "quelle": "E04-US01-FR02" },
-  "abholfristVormerkungTage": { "standard": 3,   "min": 1,  "max": 14,  "quelle": "E05-US01-FR03" }
+  "abholfristVormerkungTage": { "standard": 3,   "min": 1,  "max": 14,  "quelle": "E05-US01-FR03" },
+  "sitzungDauerStunden":      { "standard": 8,   "min": 1,  "max": 24,  "quelle": "ADR 003" }
 }
