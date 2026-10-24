@@ -17,6 +17,7 @@ Leihfrist, Ausleihlimit, maximale Verlängerungen, Mahn-Tagessatz, Erinnerungsvo
 3. Fachfunktionen in `src/lib/` bekommen Werte als Parameter, nie per Import aus `config/`.
 4. Tests setzen Werte über eine Test-Hilfe (z. B. Eintrag in `system_settings` der Test-DB). Erwartungen werden aus dem gesetzten Wert berechnet, nicht als feste Zahl geschrieben, damit eine Änderung der Defaults keine Tests bricht.
 5. Geldbeträge werden intern in Cent als ganze Zahl gerechnet.
+6. **Technische Werte** stehen in derselben Datei und werden genauso über `getSetting` gelesen: `sitzungDauerStunden` (Laufzeit einer Anmeldung, [ADR 003](003-authentifizierung-sitzungen.md), eingeführt mit PR #22 zu #20; Annahme OF-S2 in [ADR 009](009-entscheidungen-zu-luecken-der-spezifikation.md)).
 
 ## Begründung
 

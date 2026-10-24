@@ -50,6 +50,7 @@ Beim Zerlegen der Spezifikation (v1.0) sind Stellen aufgefallen, an denen der Te
 | OF-S1 | Welcher Fehler, wenn mehrere Gründe zutreffen? | Feste Prüfreihenfolge: Anmeldung → Rolle → Titel existiert und ist aktiv → offene Mahnung → Ausleihlimit → verfügbares Exemplar. | – | Annahme (reine Technik) |
 | OF-J1 | Scheduler der System-Jobs | **Geplanter GitHub-Actions-Workflow**, der täglich den geschützten Endpunkt aufruft. Unabhängig vom Hoster, Läufe sind in GitHub nachvollziehbar. Umsetzung in Woche 2 per `config-request` (`.github/` gehört der Konfigurationsrolle). | E04-US01-FR01 „zeitgesteuerter Prozess prüft täglich“ | Annahme (Technik) |
 | OF-J2 | Uhrzeit des Laufs | **Einmal täglich nachts** (Vorschlag 02:00 Europe/Berlin). Wegen Stichtag und Idempotenz (ADR 007) ist eine Verspätung des Schedulers unkritisch. | E04-US01-FR01 „täglich“ | Annahme (Technik) |
+| OF-S2 | Wie lange bleibt eine Anmeldung gültig? | Die Sitzung läuft nach einer festen Dauer ab. Die Dauer ist der Konfigurationswert `sitzungDauerStunden` (Standard und Grenzen in `config/system.defaults.json`, eingeführt mit PR #22 zu #20), nicht hart kodiert. | ADR 003; NFR03 „nur nach Anmeldung“ nennt keine Dauer | Annahme (Technik), nachfragen |
 
 ### F-01 Katalog durchsuchen
 
@@ -144,6 +145,7 @@ Für Woche 2:
 
 9. **OF-F10-1** Bekommt auch ein neu angelegtes oder wieder auffindbares Exemplar sofort die erste wartende Vormerkung?
 10. **OF-F09-1** Gebühr bei mehreren Überschreitungen eines Vorgangs: Summe in einer Mahnung? Wird eine beglichene Mahnung durch neue Gebühr wieder offen?
+11. **OF-S2** Wie lange bleibt eine Anmeldung gültig (`sitzungDauerStunden`)?
 
 Alle übrigen Annahmen sind technische oder Bedien-Details ohne Einfluss auf eine FR.
 
