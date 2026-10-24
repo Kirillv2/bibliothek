@@ -98,7 +98,7 @@ Constraint **NFR06:** `UNIQUE (copyId) WHERE returnedAt IS NULL` (ADR 002).
 | `id` | UUID | ja | |
 | `loanId` | → Loan | ja | eindeutig: eine Mahnung je Ausleihvorgang (E04-US02-FR01, NFR04) |
 | `createdOn` | Datum | ja | Datum der Mahnung (E04-US02-FR01) |
-| `feeCents` | Ganzzahl | nein | Mahngebühr; endgültig festgehalten bei Rückgabe (E03-US03-FR02, E04-US02-FR02) |
+| `feeCents` | Ganzzahl | nein | Mahngebühr; Summe der Gebühren aller abgeschlossenen Überschreitungen des Vorgangs, festgehalten bei verspäteter Verlängerung und bei Rückgabe (E03-US03-FR02, E04-US02-FR02, OF-F09-1) |
 | `settledAt` | Zeitstempel | nein | gesetzt = beglichen (E04-US02-FR03) |
 | `settledById` | → User | nein | Bibliothekar, der beglichen markiert |
 
@@ -114,7 +114,7 @@ Verlängerung und Mahnung: Eine Verlängerung am oder vor der Fälligkeit verhin
 | `memberId` | → User | ja | |
 | `createdAt` | Zeitstempel | ja | Reihenfolge der Warteschlange (E05-US01-FR02) |
 | `status` | `WARTEND` \| `ABHOLBEREIT` \| `ABGEHOLT` \| `ABGELAUFEN` | ja | E05-US01-FR03 |
-| `copyId` | → Copy | nein | gesetzt, sobald ein zurückgegebenes Exemplar zugeordnet ist (E03-US03-FR03) |
+| `copyId` | → Copy | nein | gesetzt, sobald ein Exemplar zugeordnet ist: bei Rückgabe (E03-US03-FR03) und immer, wenn ein Exemplar des Titels ausleihbar wird (OF-F10-1) |
 | `pickupDeadline` | Datum | nein | Ende der Abholfrist, `abholfristVormerkungTage` (E05-US01-FR03) |
 
 „Aktive Vormerkung“ heißt: Status `WARTEND` oder `ABHOLBEREIT`. Ob eine Person ihre Vormerkung selbst zurückziehen kann (Status `STORNIERT`), sagt die Spezifikation nicht; das klärt die Spec F-10.
@@ -161,7 +161,7 @@ Kanal: nur Anzeige in der App, kein E-Mail-Versand (OF-D8).
 | Anzahl verfügbarer Exemplare eines Titels | Exemplare mit Status `VERFUEGBAR` | E01-US01-FR03, E02-US02-FR03, E03-US01-FR04 |
 | Offene Ausleihen eines Mitglieds | `Loan` mit `memberId` und `returnedAt IS NULL` | E03-US01-FR03, E03-US02-FR01 |
 | Überschrittene Tage | `Rückgabedatum bzw. heute − dueDate` in Kalendertagen | E04-US02-FR02, ADR 008 |
-| Mahngebühr (solange offen) | überschrittene Tage × `mahnTagessatzEuro` | E04-US02-FR02 |
+| Mahngebühr (solange offen) | `feeCents` + überschrittene Tage der laufenden Frist × `mahnTagessatzEuro` | E04-US02-FR02, OF-F09-1 |
 
 ## Entscheidungen zum Datenmodell
 
