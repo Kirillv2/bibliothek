@@ -34,5 +34,10 @@
     "eslint-config-next": "16.4.2",
     "typescript": "^5",
     "vitest": "^5.0.5"
+  },
+  "overrides": {
+    "@esbuild-kit/core-utils": {
+      "esbuild": "^0.25.12"
+    }
   }
 }
