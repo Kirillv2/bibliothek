@@ -229,7 +229,7 @@ export type JobLaufZeile = { job: string; stichtag: string; finished_at: Date | 
 
 export async function leseJobLaeufe(pg: PGlite): Promise<JobLaufZeile[]> {
   const { rows } = await pg.query<JobLaufZeile>(
-    "SELECT job, stichtag::text AS stichtag, finished_at, ergebnis FROM job_runs ORDER BY started_at, id",
+    "SELECT job, stichtag::text AS stichtag, finished_at, ergebnis FROM job_runs ORDER BY started_at, finished_at NULLS LAST, id",
   );
   return rows;
 }
