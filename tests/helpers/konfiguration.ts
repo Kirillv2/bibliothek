@@ -9,7 +9,8 @@ export type EinstellungName =
   | "maxVerlaengerungen"
   | "mahnTagessatzEuro"
   | "erinnerungVorlaufTage"
-  | "abholfristVormerkungTage";
+  | "abholfristVormerkungTage"
+  | "sitzungDauerStunden";
 
 type Eintrag = { standard: number; min: number; max: number };
 
