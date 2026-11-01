@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { getSession } from "@/server/auth/sitzung";
+import { zaehleUngeleseneBenachrichtigungen } from "@/server/benachrichtigungen";
+import { holeDatenbank } from "@/server/db/verbindung";
+import { systemUhr } from "@/server/kontext";
 import { abmelden } from "./aktionen/anmeldung";
 
 /** Menü je Rolle (Rechte-Matrix). Das Ausblenden ist nur Bedienhilfe; geprüft wird auf dem Server. */
 export async function Navigation() {
   const sitzung = await getSession();
+  const ungelesen = sitzung
+    ? await zaehleUngeleseneBenachrichtigungen({ db: await holeDatenbank(), uhr: systemUhr, sitzung })
+    : 0;
   return (
     <>
       <nav aria-label="Hauptmenü">
@@ -15,6 +21,11 @@ export async function Navigation() {
             <Link href="/verwaltung/titel">Titel verwalten</Link>
             <Link href="/verwaltung/rueckgabe">Rückgabe erfassen</Link>
           </>
+        )}
+        {sitzung && (
+          <Link href="/konto/benachrichtigungen">
+            Benachrichtigungen{ungelesen > 0 && <span className="zaehler"> ({ungelesen})</span>}
+          </Link>
         )}
       </nav>
       {sitzung ? (
