@@ -68,6 +68,14 @@ export async function fristpruefung(k: Kontext): Promise<Ergebnis<FristpruefungE
           SELECT count(*)::int AS n FROM neu`),
       );
 
+      // AK-03.6 F-09, OF-F09-3: beglichene Mahnung aus einer früheren Frist wird wieder offen, wenn der Vorgang
+      // erneut überfällig ist (die neue Überschreitung bringt neue Gebühr)
+      await tx.execute(sql`
+        UPDATE dunnings d SET settled_at = NULL, settled_by_id = NULL
+        FROM loans l
+        WHERE l.id = d.loan_id AND l.returned_at IS NULL AND l.due_date < ${stichtag}::date
+          AND d.settled_at IS NOT NULL AND d.created_on <= l.due_date`);
+
       return { erinnerungen, ueberfaellig, mahnungen };
     }),
   );

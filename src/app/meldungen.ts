@@ -13,5 +13,8 @@ export const FEHLERTEXTE: Record<Fehlercode, string> = {
   VORMERKUNG_VORHANDEN: "Für diesen Titel gibt es eine Vormerkung, deshalb ist keine Verlängerung möglich.",
   MAX_VERLAENGERUNGEN_ERREICHT: "Die höchste Zahl an Verlängerungen ist erreicht.",
   AUSLEIHVORGANG_ABGESCHLOSSEN: "Dieser Ausleihvorgang ist bereits abgeschlossen.",
+  UEBERSCHREITUNG_LAEUFT:
+    "Die Frist ist noch überschritten. Die Mahnung kann erst nach Rückgabe oder Verlängerung beglichen werden.",
+  MAHNUNG_BEGLICHEN: "Diese Mahnung ist bereits beglichen.",
   TITEL_NICHT_ARCHIVIERBAR: "Der Titel kann nicht archiviert werden, solange ein Exemplar ausgeliehen oder der Titel vorgemerkt ist.",
 };

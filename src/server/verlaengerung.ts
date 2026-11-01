@@ -152,11 +152,18 @@ export async function verlaengern(
           const [gesetzt] = zeilen<{ fee_cents: number }>(
             await tx.execute(sql`
               INSERT INTO dunnings (loan_id, created_on, fee_cents) VALUES (${loanId}, ${heute}, ${gebuehr})
-              ON CONFLICT (loan_id) DO UPDATE SET fee_cents = coalesce(dunnings.fee_cents, 0) + EXCLUDED.fee_cents
-              WHERE dunnings.settled_at IS NULL
+              ON CONFLICT (loan_id) DO UPDATE SET fee_cents = coalesce(dunnings.fee_cents, 0) + EXCLUDED.fee_cents,
+                settled_at = NULL, settled_by_id = NULL
+              WHERE dunnings.settled_at IS NULL OR dunnings.created_on <= ${alteFaelligkeit}::date
               RETURNING fee_cents`),
           );
+          // F-09 OF-F09-3: eine beglichene Mahnung aus einer früheren Frist wird durch die neue Gebühr wieder offen
           if (gesetzt) mahngebuehrCents = gesetzt.fee_cents;
+          // F-09 AK-01.4, OF-F09-4: Benachrichtigung „Mahnung“, höchstens eine je Vorgang
+          await tx.execute(sql`
+            INSERT INTO notifications (user_id, type, loan_id, created_at)
+            VALUES (${memberId}, 'MAHNUNG', ${loanId}, ${k.uhr.jetzt()})
+            ON CONFLICT (loan_id) WHERE type = 'MAHNUNG' DO NOTHING`);
         }
 
         return {

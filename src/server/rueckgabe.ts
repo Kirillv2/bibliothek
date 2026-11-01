@@ -85,11 +85,19 @@ export async function rueckgabeErfassen(
               ON CONFLICT (loan_id) DO UPDATE SET fee_cents = CASE
                 WHEN dunnings.created_on <= ${vorgang.due_date}::date THEN coalesce(dunnings.fee_cents, 0) + EXCLUDED.fee_cents
                 ELSE EXCLUDED.fee_cents
-              END
-              WHERE dunnings.settled_at IS NULL
+              END,
+              settled_at = NULL, settled_by_id = NULL
+              WHERE dunnings.settled_at IS NULL OR dunnings.created_on <= ${vorgang.due_date}::date
               RETURNING fee_cents`),
           );
+          // F-09 OF-F09-3: beglichen in einer früheren Frist → durch die neue Gebühr wieder offen.
+          // Beglichen in derselben Frist bleibt beglichen (AK-02.5).
           if (gesetzt) mahngebuehrCents = gesetzt.fee_cents;
+          // F-09 AK-01.4, OF-F09-4: Benachrichtigung „Mahnung“, höchstens eine je Vorgang
+          await tx.execute(sql`
+            INSERT INTO notifications (user_id, type, loan_id, created_at)
+            SELECT member_id, 'MAHNUNG', id, ${returnedAt} FROM loans WHERE id = ${vorgang.id}
+            ON CONFLICT (loan_id) WHERE type = 'MAHNUNG' DO NOTHING`);
         }
 
         // E03-US03-FR03: an die früheste wartende Vormerkung des Titels; ein verlorenes Exemplar nicht (AK-03.6, OF-F07-5)
