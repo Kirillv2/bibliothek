@@ -289,8 +289,10 @@ describe("E04-US02-FR03 Offene Mahnung sperrt Ausleihen, bis sie als beglichen m
   it("AK-03.4 (OF-F09-2) solange die Überschreitung läuft, kann nicht beglichen werden", async () => {
     const v = await vorgang(plusTage(HEUTE, -3));
     await lauf();
+    const bib = await bibliothekar();
+    const id = await mahnungsId(v.loanId);
     const vorher = await momentaufnahme(t.pg);
-    erwarteFehler(await begleiche(await mahnungsId(v.loanId)), "UEBERSCHREITUNG_LAEUFT");
+    erwarteFehler(await begleiche(id, HEUTE, bib), "UEBERSCHREITUNG_LAEUFT");
     expect(await momentaufnahme(t.pg)).toBe(vorher);
   });
 
@@ -305,12 +307,13 @@ describe("E04-US02-FR03 Offene Mahnung sperrt Ausleihen, bis sie als beglichen m
     const v = await vorgang(plusTage(HEUTE, -3));
     await zurueck(v, HEUTE);
     const id = await mahnungsId(v.loanId);
-    erwarteOk(await begleiche(id));
+    const bib = await bibliothekar();
+    erwarteOk(await begleiche(id, HEUTE, bib));
     const vorher = await momentaufnahme(t.pg);
 
-    erwarteFehler(await begleiche(id), "MAHNUNG_BEGLICHEN");
-    erwarteFehler(await begleiche("00000000-0000-4000-8000-000000000000"), "NICHT_GEFUNDEN");
-    erwarteFehler(await begleiche("keine-uuid"), "NICHT_GEFUNDEN");
+    erwarteFehler(await begleiche(id, HEUTE, bib), "MAHNUNG_BEGLICHEN");
+    erwarteFehler(await begleiche("00000000-0000-4000-8000-000000000000", HEUTE, bib), "NICHT_GEFUNDEN");
+    erwarteFehler(await begleiche("keine-uuid", HEUTE, bib), "NICHT_GEFUNDEN");
     expect(await momentaufnahme(t.pg)).toBe(vorher);
   });
 
