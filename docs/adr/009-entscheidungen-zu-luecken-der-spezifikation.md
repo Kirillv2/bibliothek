@@ -1,7 +1,8 @@
-# ADR 009: Entscheidungen zu Lücken und Unklarheiten der Spezifikation (Woche 0 und Woche 1)
+# ADR 009: Entscheidungen zu Lücken und Unklarheiten der Spezifikation (Woche 0 bis Woche 3)
 
 - Status: Entschieden von den Agenten im Auftrag von KiKo (22.10.2026); Freigabe an Gate 1
-- Bezug: alle offenen Fragen (OF-…) aus Datenmodell, Rechte-Matrix, Schnittstellen, ADR 007/008 und den Specs F-01 … F-07
+- Bezug: alle offenen Fragen (OF-…) aus Datenmodell, Rechte-Matrix, Schnittstellen, ADR 007/008 und den Specs F-01 … F-13
+- Ergänzt am 01.11.2026 um die Entscheidungen der Specs F-08 … F-13 (Abschnitt „Woche 2 und 3“), Freigabe an Gate 1 (Issues #24 … #29)
 
 ## Kontext
 
@@ -127,6 +128,69 @@ Gemeldet von Review & Security beim Prüfen von Woche 1 (R-06 in PR #16, R-08 in
 | OF-F10-1 | Wird ein Exemplar, das **nicht durch eine Rückgabe** ausleihbar wird (neu angelegt, Zustand von „verloren“ zurück auf „gut“ oder „beschädigt“, Abholfrist einer Vormerkung abgelaufen), sofort frei, obwohl eine Vormerkung wartet? | **Nein.** Wartet für den Titel eine Vormerkung, wird jedes Exemplar, das ausleihbar wird, der **ersten wartenden** Vormerkung zugeordnet (Status `ABHOLBEREIT`, Abholfrist ab diesem Tag, Benachrichtigung „abholbereit“), genau wie bei der Rückgabe. Erst wenn keine Vormerkung wartet, ist es frei verfügbar. | E05 „vormerken, um es zu erhalten, sobald es frei ist“; E05-US01-FR02 Warteschlange je Titel; E05-US01-FR03 „verstreicht die Frist, rückt die nächste Person nach“; E03-US03-FR03 „statt frei verfügbar zu werden“ | Abgeleitet (Rückgabe und Fristablauf); neues Exemplar und Zustandswechsel: Annahme |
 | OF-F09-1 | Wie summiert sich die Mahngebühr, wenn ein Vorgang **mehrmals** überfällig wird (verspätete Verlängerung, danach wieder überfällig)? | **Eine Mahnung je Ausleihvorgang**, ihre Gebühr ist die **Summe aller Überschreitungen**: Jede Frist zählt die Tage von ihrer Fälligkeit bis zu dem Tag, an dem sie endet (verspätete Verlängerung oder Rückgabe), × `mahnTagessatzEuro` zu diesem Tag. Endet eine Frist durch eine verspätete Verlängerung und gibt es die Mahnung schon (vom System-Job), wird die Gebühr dieser Frist **hinzugerechnet** (nicht verworfen). Solange eine Frist noch läuft, zeigt die App zusätzlich die bis heute aufgelaufenen Tage an. Kommt Gebühr zu einer bereits beglichenen Mahnung hinzu, ist die Mahnung wieder offen. | E04-US02-FR01 „für jeden überfälligen Vorgang wird eine Mahnung … erzeugt“; E04-US02-FR02 „überschrittene Tage multipliziert mit einem … Tagessatz“; E03-US02-FR03 (Verlängerung danach stoppt die Mahnung nicht) | Abgeleitet (eine Mahnung je Vorgang, Gebühr aus allen überschrittenen Tagen); Wiedereröffnen nach Begleichen: Annahme |
 
+## Woche 2 und 3: F-08 … F-13
+
+Gleiche Regeln wie oben. Die Specs F-08 … F-13 nennen die Entscheidungen in Abschnitt 7 und verweisen hierher.
+
+### F-08 Fristprüfung
+
+| ID | Frage | Entscheidung | Grundlage | Art |
+|---|---|---|---|---|
+| OF-F08-1 | Wann und wie oft kommt die Erinnerung? | Genau **eine** Erinnerung je Vorgang und Fälligkeit, sobald ein Lauf mit Stichtag S im Vorlauf liegt (F − V ≤ S ≤ F); bei V = 0 am Fälligkeitstag. Nach einer Verlängerung (neue Fälligkeit) wieder eine. | E04-US01-FR02 „Nähert sich die Fälligkeit (konfigurierbarer Vorlauf …)“; ADR 007 (eindeutiger Schlüssel) | Abgeleitet; „einmal“: Annahme |
+| OF-F08-2 | Erinnerung, wenn der Vorgang schon überfällig ist (z. B. Job ausgefallen)? | **Nein**, dann greift FR03 (überfällig, Mahnung). | FR02 spricht von „nähert sich“ | Annahme |
+| OF-F08-3 | Welches Datum bekommt die Markierung „überfällig“? | `overdueSince` = Fälligkeit + 1 Tag (erster überfälliger Tag), unabhängig vom Lauftag; nach verspäteter Verlängerung und erneuter Überschreitung das Datum der neuen Frist. | OF-Z2; NFR04 „reproduzierbar“ | Abgeleitet |
+| OF-F08-4 | Darf der Aufrufer den Stichtag vorgeben? Was ohne `JOB_SECRET`? | **Nein**, Stichtag ist immer heute (Europe/Berlin). Ohne gesetztes `JOB_SECRET` ist der Endpunkt gesperrt. | ADR 007 Punkt 2 und 3 | Annahme (Sicherheit) |
+| OF-F08-5 | Wo sieht man Benachrichtigungen? | Eigene Seite „Benachrichtigungen“ für alle angemeldeten Nutzer (nur eigene), neueste zuerst, als gelesen markierbar. | OF-D8 „in der App“; Rechte-Matrix „Eigene Benachrichtigungen sehen“ | Annahme |
+
+### F-09 Mahnungen
+
+| ID | Frage | Entscheidung | Grundlage | Art |
+|---|---|---|---|---|
+| OF-F09-2 | Darf eine Mahnung beglichen werden, während die Überschreitung noch läuft (Exemplar noch nicht zurück)? | **Nein** (`UEBERSCHREITUNG_LAEUFT`). Begleichen geht, sobald die Gebühr feststeht: nach Rückgabe oder Verlängerung. | E04-US02-FR02 Gebühr aus **den** überschrittenen Tagen; solange sie laufen, ist die Gebühr offen. FR03 nennt keine Bedingung für das Begleichen. | Annahme |
+| OF-F09-3 | Was passiert mit einer beglichenen Mahnung, wenn derselbe Vorgang nach einer verspäteten Verlängerung erneut überfällig wird? | Sie wird **wieder offen** und bekommt die neue Gebühr (Fristprüfung, verspätete Verlängerung oder Rückgabe). Eine Mahnung derselben Frist bleibt beglichen (F-07 AK-02.5). | OF-F09-1 „Kommt Gebühr zu einer bereits beglichenen Mahnung hinzu, ist die Mahnung wieder offen“ | Annahme |
+| OF-F09-4 | Bekommt das Mitglied eine Benachrichtigung zur Mahnung? | **Ja**, eine `MAHNUNG`-Benachrichtigung je Vorgang, egal ob die Mahnung vom Job, bei verspäteter Verlängerung oder bei Rückgabe entsteht. | Glossar 1.4: „Mahnung: Benachrichtigung bei Überschreitung der Frist“ | Abgeleitet |
+| OF-F09-5 | Ordnung der Mahnungsliste | Offene zuerst, dann nach Datum aufsteigend; Filter „nur offene“. | – | Annahme (Bedienung) |
+| OF-R4 | Sieht ein Mitglied eigene Mahnungen? | **Ja**, in „Meine Ausleihen“: Datum, Titel, Inventarnummer, Gebühr, Status. Fremde nie. | 1.3, `CLAUDE.md` „Mitglieder sehen nur ihre eigenen Daten“; Glossar 1.4 | Annahme |
+
+### F-10 Vormerkungen
+
+| ID | Frage | Entscheidung | Grundlage | Art |
+|---|---|---|---|---|
+| OF-F10-2 | Mehrere Vormerkungen derselben Person für denselben Titel? | **Nein**, höchstens eine aktive (`BEREITS_VORGEMERKT`). | Warteschlange „nach Zeitpunkt“ je Person sinnvoll nur einmal | Annahme |
+| OF-F10-3 | Wie wird abgeholt? | Abholen = **Ausleihen** des zugeordneten Exemplars bis zum letzten Abholtag; die Vormerkung wird `ABGEHOLT`. Limit und offene Mahnung gelten weiter. | E03-US01-FR03 gilt für jede Ausleihe | Abgeleitet; Ablauf: Annahme |
+| OF-F10-4 | Zugeordnetes Exemplar wird als „verloren“ markiert | Vormerkung wird wieder `WARTEND` (Platz nach ursprünglichem Zeitpunkt) und bekommt das nächste ausleihbare Exemplar. | OF-F10-1 | Annahme |
+| OF-F10-5 | Was passiert nach Ablauf der Abholfrist mit der Person? | Vormerkung `ABGELAUFEN`, kein Wiedereinreihen, keine eigene Benachrichtigung; neu vormerken ist möglich. | FR03 „rückt die nächste Person nach“ | Annahme |
+| OF-F10-6 | Vormerkung zurückziehen? | **Nicht vorgesehen**, die Spezifikation fordert es nicht. Kein Status `STORNIERT`. | – | Annahme |
+| OF-F10-7 | Zählt der letzte Abholtag mit? | **Ja**, abgelaufen ab dem Tag danach (wie Fälligkeit, OF-Z2). Letzter Abholtag = Tag der Zuordnung + `abholfristVormerkungTage`. | OF-Z2 | Annahme |
+
+### F-11 Registrierung
+
+| ID | Frage | Entscheidung | Grundlage | Art |
+|---|---|---|---|---|
+| OF-F11-1 | Welche Rolle bekommt ein neues Konto? | **Mitglied**; andere Rollen vergibt nur der Administrator. | 1.3; E06-US02-FR01 | Abgeleitet |
+| OF-F11-2 | Regeln für E-Mail und Passwort | E-Mail formal geprüft, höchstens 254 Zeichen, klein gespeichert; Passwort 8 bis 200 Zeichen. Keine Bestätigungs-E-Mail. | E06-US01-FR01 nennt keine Regeln | Annahme |
+| OF-F11-3 | Vergebene E-Mail | Wird gemeldet (`EMAIL_VERGEBEN`), weil ohne E-Mail-Versand nicht verbergbar. Bei der **Anmeldung** bleibt die Meldung gleich (Security-Architektur 3). | – | Annahme |
+| OF-F11-4 | Nach der Registrierung angemeldet? | **Ja.** | NFR01 | Annahme |
+
+### F-12 Rollen und Systemparameter
+
+| ID | Frage | Entscheidung | Grundlage | Art |
+|---|---|---|---|---|
+| OF-F12-1 | Darf ein Administrator die eigene Rolle ändern? | **Nein** (`EIGENE_ROLLE`), damit sich niemand aussperrt. | – | Annahme (Sicherheit) |
+| OF-F12-2 | Was passiert bei Rollenwechsel mit laufenden Vorgängen? | Nichts, sie bleiben unverändert. | – | Annahme |
+| OF-F12-3 | Welche Parameter sind änderbar? | **Alle** aus `config/system.defaults.json`, mit den dortigen Grenzen. | E06-US02-FR02 „mindestens“; ADR 006 | Abgeleitet |
+| OF-F12-4 | Zahlformat | Tage, Stunden und Anzahlen ganzzahlig; Tagessatz in Euro mit höchstens zwei Nachkommastellen. | ADR 006 Punkt 5 (Cent) | Annahme |
+
+### F-13 Dashboard
+
+| ID | Frage | Entscheidung | Grundlage | Art |
+|---|---|---|---|---|
+| OF-F13-1 | Zählt „überfällig“ nach Job-Markierung oder nach Datum? | Nach **Datum**: offen und Fälligkeit vor heute. So stimmt die Zahl auch, wenn der Job heute noch nicht lief. | E04-US01-FR03 „Ist die Fälligkeit überschritten“; OF-Z2 | Abgeleitet |
+| OF-F13-2 | Standardsortierung der Überfälligen-Liste | Fälligkeit aufsteigend (am längsten überfällig zuerst). | – | Annahme |
+| OF-F13-3 | Worauf verlinkt „den jeweiligen Vorgang“? | Eigene Seite des Ausleihvorgangs in der Verwaltung mit allen Daten und der Mahnung. | E07-US01-FR02 | Annahme |
+| OF-F13-4 | Inhalt des Exports | Nur aktive Titel; Spalten Titel, Autor, Kategorie, ISBN, Exemplare gesamt, Exemplare verfügbar. | FR03 nennt Titel und Anzahlen als Mindestinhalt; OF-D4 | Annahme |
+| OF-F13-5 | CSV-Format | Semikolon, UTF-8 mit BOM, CRLF, RFC-4180-Anführungszeichen; CSV-Injection entschärft. | FR03 „z. B. CSV“; Security-Architektur 6 | Annahme |
+
 ## Annahmen, die beim Prof nachgefragt werden sollten
 
 Nach Wichtigkeit für Woche 1:
@@ -151,3 +215,4 @@ Alle übrigen Annahmen sind technische oder Bedien-Details ohne Einfluss auf ein
 
 - Die Abschnitte „Offene Fragen“ in Datenmodell, Rechte-Matrix, Schnittstellen, ADR 007/008 und den Specs heißen jetzt „Entscheidungen“ und verweisen hierher.
 - Neuer Fehlercode: keiner. Die Verlängerung nach Fristüberschreitung braucht keinen eigenen Code, weil sie erlaubt ist.
+- Woche 2 und 3 (F-08 … F-13): neue Fehlercodes `UEBERSCHREITUNG_LAEUFT`, `MAHNUNG_BEGLICHEN` (F-09), `EXEMPLAR_VERFUEGBAR`, `BEREITS_VORGEMERKT` (F-10), `EMAIL_VERGEBEN` (F-11), `EIGENE_ROLLE` (F-12); Liste in [schnittstellen.md](../architektur/schnittstellen.md). Für die Annahmen aus Woche 2 und 3 gibt es keine eigene Fragenliste; sie stehen nur oben als „Annahme“ markiert.
