@@ -16,7 +16,8 @@ export type Fehlercode =
   | "UEBERSCHREITUNG_LAEUFT"
   | "MAHNUNG_BEGLICHEN"
   | "EXEMPLAR_VERFUEGBAR"
-  | "BEREITS_VORGEMERKT";
+  | "BEREITS_VORGEMERKT"
+  | "EMAIL_VERGEBEN";
 
 export type Fehler = { ok: false; fehler: Fehlercode; felder?: Record<string, string> };
 

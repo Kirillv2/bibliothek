@@ -18,5 +18,6 @@ export const FEHLERTEXTE: Record<Fehlercode, string> = {
   MAHNUNG_BEGLICHEN: "Diese Mahnung ist bereits beglichen.",
   EXEMPLAR_VERFUEGBAR: "Ein Exemplar ist verfügbar. Du kannst den Titel direkt ausleihen.",
   BEREITS_VORGEMERKT: "Du hast diesen Titel bereits vorgemerkt.",
+  EMAIL_VERGEBEN: "Diese E-Mail-Adresse ist schon registriert. Bitte melde dich an.",
   TITEL_NICHT_ARCHIVIERBAR: "Der Titel kann nicht archiviert werden, solange ein Exemplar ausgeliehen oder der Titel vorgemerkt ist.",
 };
