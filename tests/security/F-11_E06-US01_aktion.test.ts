@@ -29,7 +29,7 @@ vi.mock("@/server/auth/registrierung", () => ({
     zustand.eingaben.push(eingabe);
     if (k.sitzung) return { ok: false, fehler: "KEINE_BERECHTIGUNG" };
     if (eingabe.email === "vergeben@example.org") return { ok: false, fehler: "EMAIL_VERGEBEN" };
-    if (eingabe.passwort.length < 8) return { ok: false, fehler: "VALIDIERUNG", felder: { passwort: "zu kurz" } };
+    if (eingabe.passwort.length < 8) return { ok: false, fehler: "VALIDIERUNG", felder: { passwort: "Länge ungültig" } };
     return { ok: true, daten: { userId: NEUE_ID } };
   },
 }));
