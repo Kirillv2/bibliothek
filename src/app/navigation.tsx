@@ -23,6 +23,7 @@ export async function Navigation() {
         )}
         {sitzung?.role === "BIBLIOTHEKAR" && (
           <>
+            <Link href="/verwaltung/dashboard">Dashboard</Link>
             <Link href="/verwaltung/titel">Titel verwalten</Link>
             <Link href="/verwaltung/rueckgabe">Rückgabe erfassen</Link>
             <Link href="/verwaltung/mahnungen">Mahnungen</Link>

@@ -168,3 +168,16 @@ export async function mahnungBegleichen(
     throw e;
   }
 }
+
+export type MahnungZumVorgang = { dunningId: string; createdOn: Datum; gebuehrCents: number; beglichen: boolean };
+
+/**
+ * F-13 AK-02.4: Mahnung eines Vorgangs mit Gebühr wie in der Mahnungsliste (höchstens eine je Vorgang).
+ * Ohne eigene Rechteprüfung: nur aus Funktionen aufrufen, die selbst schon geprüft haben.
+ */
+export async function mahnungZumVorgang(k: Kontext, loanId: string): Promise<MahnungZumVorgang | undefined> {
+  const [z] = zeilen<MahnungZeile>(await k.db.execute(mahnungenAbfrage(sql`d.loan_id = ${loanId}`)));
+  if (!z) return undefined;
+  const { gebuehrCents } = bewerte(z, k.uhr.heute(), await getSetting(k.db, "mahnTagessatzEuro"));
+  return { dunningId: z.id, createdOn: z.created_on, gebuehrCents, beglichen: Boolean(z.beglichen) };
+}
