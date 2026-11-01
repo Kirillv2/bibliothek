@@ -60,7 +60,7 @@ describe("E06-US01-FR01 Registrierung und Anmeldung mit E-Mail und Passwort, nur
     erwarteFehler(await registriere("Doppelt@Example.org", "anderes-Passwort"), "EMAIL_VERGEBEN");
     erwarteFehler(await registriere("doppelt@example.org"), "EMAIL_VERGEBEN");
     expect(await momentaufnahme(t.pg)).toBe(vorher);
-    expect(await zaehle(t.pg, "SELECT count(*) FROM users WHERE email = $1", ["doppelt@example.org"])).toBe(1);
+    expect(await zaehle(t.pg, "SELECT count(*) AS n FROM users WHERE email = $1", ["doppelt@example.org"])).toBe(1);
   });
 
   it("AK-01.4 auch ein Seed- oder Bibliothekarskonto mit der E-Mail blockiert die Registrierung", async () => {
