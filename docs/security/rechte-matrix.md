@@ -1,6 +1,6 @@
 # Rechte-Matrix der fünf Rollen
 
-- Status: Entschieden (Agenten im Auftrag von KiKo, siehe [ADR 009](../adr/009-entscheidungen-zu-luecken-der-spezifikation.md)); Freigabe an Gate 1
+- Status: Entschieden (Agenten im Auftrag von KiKo, siehe [ADR 009](../adr/009-entscheidungen-zu-luecken-der-spezifikation.md)); Freigabe an Gate 1; ergänzt für F-08 … F-13 am 01.11.2026
 - Bezug: Spezifikation 1.3 (Akteure), E01–E07, E06-US01-FR02, NFR03
 - Wird geprüft von: `tests/security/` (Testing schreibt, Review & Security führt aus)
 
@@ -25,8 +25,11 @@ Grundsatz: **Alles, was nicht erlaubt ist, ist verboten.** Geprüft wird immer a
 | Rückgabe erfassen | E03-US03 | F-07 | ❌ | ❌ | ✅ | ❌ (OF-R3) | ❌ |
 | Fristprüfung, Erinnerung, „überfällig“ markieren | E04-US01 | F-08 | ❌ | ❌ | ❌ | ❌ | ✅ (nur mit Job-Secret) |
 | Mahnung erzeugen | E04-US02-FR01 | F-09 | ❌ | ❌ | ❌ | ❌ | ✅ (nur mit Job-Secret) |
-| Mahnungen ansehen und als beglichen markieren | E04-US02-FR03 | F-09 | ❌ | ❌ in Woche 1, eigene Ansicht entscheidet Spec F-09 (OF-R4) | ✅ | ❌ (OF-R3) | ❌ |
+| Alle Mahnungen ansehen und als beglichen markieren | E04-US02-FR03 | F-09 | ❌ | ❌ | ✅ | ❌ (OF-R3) | ❌ |
+| Eigene Mahnungen ansehen | E04-US02 | F-09 | ❌ → Anmeldung | 👤 (OF-R4) | ❌ | ❌ | ❌ |
 | Titel vormerken | E05-US01 | F-10 | ❌ → Anmeldung | ✅ | ❌ (OF-R1) | ❌ (OF-R1) | ❌ |
+| Eigene Vormerkungen mit Platz sehen | E05-US01-FR02 | F-10 | ❌ → Anmeldung | 👤 | ❌ (OF-R1) | ❌ (OF-R1) | ❌ |
+| Abholen (zugeordnetes Exemplar ausleihen) | E05-US01-FR03 | F-10 | ❌ → Anmeldung | 👤 nur eigene Vormerkung | ❌ (OF-R1) | ❌ (OF-R1) | ❌ |
 | Abholfrist ablaufen lassen, nächste Person nachrücken | E05-US01-FR03 | F-10 | ❌ | ❌ | ❌ | ❌ | ✅ (nur mit Job-Secret) |
 | Eigene Benachrichtigungen sehen | E04-US01-FR02, E05-US01-FR03 | F-08, F-10 | ❌ | 👤 | 👤 | 👤 | ❌ |
 | Registrieren | E06-US01-FR01 | F-11 | ✅ | – | – | – | ❌ |
@@ -34,6 +37,7 @@ Grundsatz: **Alles, was nicht erlaubt ist, ist verboten.** Geprüft wird immer a
 | Rollen zuweisen | E06-US02-FR01 | F-12 | ❌ | ❌ | ❌ | ✅ | ❌ |
 | Systemparameter ändern (innerhalb der Grenzen aus `config/`) | E06-US02-FR02 | F-12 | ❌ | ❌ | ❌ | ✅ | ❌ |
 | Dashboard mit Kennzahlen, Liste überfälliger Ausleihen | E07-US01-FR01, FR02 | F-13 | ❌ | ❌ | ✅ | ❌ (OF-R3) | ❌ |
+| Einzelnen Ausleihvorgang ansehen (Vorgangsseite) | E07-US01-FR02 | F-13 | ❌ | ❌ | ✅ | ❌ (OF-R3) | ❌ |
 | Bestand als CSV exportieren | E07-US01-FR03 | F-13 | ❌ | ❌ | ✅ | ❌ (OF-R3) | ❌ |
 
 „❌ → Anmeldung“: Ein Gast, der die Aktion aufruft, wird zur Anmeldung geschickt (E06-US01-FR02), es passiert nichts.
@@ -66,5 +70,6 @@ Begründung und Zitate: [ADR 009](../adr/009-entscheidungen-zu-luecken-der-spezi
 | OF-R1 | Ausleihen, Verlängern, Vormerken nur mit Rolle `MITGLIED`; Bibliothekar/Administrator bekommen `KEINE_BERECHTIGUNG`, die Aktionen werden ihnen nicht angezeigt | Abgeleitet (1.3, E01-US02-FR02) |
 | OF-R2 | Gast sieht „Vormerken“, Klick führt zur Anmeldung; „Ausleihen“ sieht ein Gast nicht | Abgeleitet (E01-US02-FR02/FR03, E06-US01-FR02) |
 | OF-R3 | Administrator hat keine Bibliothekarsrechte (getrennte Rollen laut 1.3) | Abgeleitet, nachfragen |
-| OF-R4 | Eigene Mahnungen: in Woche 1 nur Hinweis `OFFENE_MAHNUNG` beim Ausleihen; eigene Ansicht entscheidet Spec F-09 | Annahme |
+| OF-R4 | Eigene Mahnungen: Mitglied sieht sie in „Meine Ausleihen“ (Spec F-09) | Annahme |
+| OF-F12-1 | Administrator kann die eigene Rolle nicht ändern | Annahme |
 | – | 1.3 „Mitglied … ausleihen und zurückgeben“: Das Mitglied bringt zurück, **erfassen** darf nur der Bibliothekar (E03-US03) | Abgeleitet |
