@@ -3,7 +3,7 @@ import Link from "next/link";
 import { erstelleKontext } from "@/server/anfrage";
 import { ladeExemplareDesTitels, type ExemplarInDerVerwaltung } from "@/server/exemplare";
 import { ladeTitelZurBearbeitung } from "@/server/titel";
-import { statusText, ZUSTAND_TEXT } from "../../../exemplarstatus-text";
+import { statusKlasse, statusText, ZUSTAND_TEXT } from "../../../exemplarstatus-text";
 import { Zugriffsfehler } from "../../../zugriff";
 import { TitelFormular } from "../titel-formular";
 import { ArchivierenKnopf } from "./archivieren-knopf";
@@ -92,34 +92,38 @@ function Exemplarliste({
 }) {
   if (exemplare.length === 0) return <p>Zu diesem Titel gibt es noch keine Exemplare.</p>;
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Inventarnummer</th>
-          <th>Status</th>
-          <th>Zustand</th>
-        </tr>
-      </thead>
-      <tbody>
-        {exemplare.map((exemplar) => (
-          <tr key={exemplar.copyId}>
-            <td>{exemplar.inventoryNumber}</td>
-            <td>{statusText(exemplar)}</td>
-            <td>
-              {bearbeitbar ? (
-                <ZustandAendern
-                  titleId={titleId}
-                  copyId={exemplar.copyId}
-                  inventoryNumber={exemplar.inventoryNumber}
-                  condition={exemplar.condition}
-                />
-              ) : (
-                ZUSTAND_TEXT[exemplar.condition]
-              )}
-            </td>
+    <div className="tabelle-rahmen">
+      <table>
+        <thead>
+          <tr>
+            <th>Inventarnummer</th>
+            <th>Status</th>
+            <th>Zustand</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {exemplare.map((exemplar) => (
+            <tr key={exemplar.copyId}>
+              <td>{exemplar.inventoryNumber}</td>
+              <td>
+                  <span className={statusKlasse(exemplar.status)}>{statusText(exemplar)}</span>
+                </td>
+              <td>
+                {bearbeitbar ? (
+                  <ZustandAendern
+                    titleId={titleId}
+                    copyId={exemplar.copyId}
+                    inventoryNumber={exemplar.inventoryNumber}
+                    condition={exemplar.condition}
+                  />
+                ) : (
+                  ZUSTAND_TEXT[exemplar.condition]
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

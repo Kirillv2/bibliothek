@@ -17,3 +17,8 @@ export function statusText(exemplar: { status: Exemplarstatus; faelligAm?: Datum
 }
 
 export const ZUSTAND_TEXT = { GUT: "gut", BESCHAEDIGT: "beschädigt", VERLOREN: "verloren" } as const;
+
+/** CSS-Klasse der Status-Marke (Farbe ergänzt nur den Text, NFR01). */
+export function statusKlasse(status: Exemplarstatus): string {
+  return `status status-${status.toLowerCase()}`;
+}

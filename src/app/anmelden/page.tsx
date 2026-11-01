@@ -14,7 +14,7 @@ export default async function AnmeldenSeite({ searchParams }: PageProps<"/anmeld
           E-Mail oder Passwort ist nicht korrekt.
         </p>
       )}
-      <form action={anmelden} className="felder">
+      <form action={anmelden} className="felder schmal">
         <input type="hidden" name="weiter" value={ziel} />
         <label>
           E-Mail

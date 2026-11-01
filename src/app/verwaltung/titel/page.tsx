@@ -22,30 +22,32 @@ export default async function TitelVerwaltung() {
       {liste.length === 0 ? (
         <p>Es gibt noch keine Titel.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Titel</th>
-              <th>Autor</th>
-              <th>Kategorie</th>
-              <th>Exemplare</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {liste.map((titel) => (
-              <tr key={titel.titleId}>
-                <td>
-                  <Link href={`/verwaltung/titel/${titel.titleId}`}>{titel.title}</Link>
-                </td>
-                <td>{titel.author}</td>
-                <td>{titel.category}</td>
-                <td>{titel.anzahlExemplare}</td>
-                <td>{titel.archiviert ? "archiviert" : "aktiv"}</td>
+        <div className="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr>
+                <th>Titel</th>
+                <th>Autor</th>
+                <th>Kategorie</th>
+                <th>Exemplare</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {liste.map((titel) => (
+                <tr key={titel.titleId}>
+                  <td>
+                    <Link href={`/verwaltung/titel/${titel.titleId}`}>{titel.title}</Link>
+                  </td>
+                  <td>{titel.author}</td>
+                  <td>{titel.category}</td>
+                  <td>{titel.anzahlExemplare}</td>
+                  <td>{titel.archiviert ? "archiviert" : "aktiv"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   );
