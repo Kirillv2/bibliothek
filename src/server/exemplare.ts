@@ -11,6 +11,7 @@ import { istUuid, type MitWeiterenFeldern } from "./eingabe";
 import { Abbruch, erfolg, fehler, type Ergebnis } from "./ergebnis";
 import type { Kontext } from "./kontext";
 import { lageDesExemplars } from "./katalog/verfuegbarkeit";
+import { loeseZuordnung, ordneExemplarZu } from "./vormerkung/zuordnung";
 
 // Wiederholungen, falls eine Nummer der Folge schon vergeben ist (z. B. von Hand eingespielte Altdaten)
 const VERSUCHE_BEI_BELEGTER_NUMMER = 5;
@@ -56,6 +57,8 @@ export async function exemplarAnlegen(
               VALUES (${titleId}, ${inventoryNumber}, ${condition}, ${k.uhr.jetzt()})
               RETURNING id`),
           );
+          // F-10 AK-03.8, OF-F10-1: ein neues ausleihbares Exemplar geht an die erste wartende Vormerkung
+          if (condition !== "VERLOREN") await ordneExemplarZu(tx, { copyId: neu.id, heute: k.uhr.heute(), jetzt: k.uhr.jetzt() });
           return { copyId: neu.id, inventoryNumber };
         }),
       );
@@ -81,11 +84,21 @@ export async function exemplarZustandAendern(
   const condition = eingabe.condition;
   if (!istZustand(condition)) return fehler("VALIDIERUNG", ZUSTAND_FEHLER);
 
-  const geaendert = zeilen<{ id: string }>(
-    await k.db.execute(sql`UPDATE copies SET condition = ${condition} WHERE id = ${copyId} RETURNING id`),
-  );
-  if (geaendert.length === 0) return fehler("NICHT_GEFUNDEN");
-  return erfolg({ copyId, condition });
+  return k.db.transaction(async (tx) => {
+    const [vorher] = zeilen<{ condition: Zustand }>(
+      await tx.execute(sql`SELECT condition FROM copies WHERE id = ${copyId} FOR UPDATE`),
+    );
+    if (!vorher) return fehler("NICHT_GEFUNDEN");
+    await tx.execute(sql`UPDATE copies SET condition = ${condition} WHERE id = ${copyId}`);
+    if (condition === "VERLOREN") {
+      // F-10 AK-03.9, OF-F10-4: eine abholbereite Vormerkung auf dieses Exemplar wartet wieder
+      await loeseZuordnung(tx, copyId);
+    } else if (vorher.condition === "VERLOREN") {
+      // F-10 AK-03.8, OF-F10-1: wieder ausleihbar → an die erste wartende Vormerkung (nur wenn nicht ausgeliehen)
+      await ordneExemplarZu(tx, { copyId, heute: k.uhr.heute(), jetzt: k.uhr.jetzt() });
+    }
+    return erfolg({ copyId, condition });
+  });
 }
 
 export type ExemplarInDerVerwaltung = {
