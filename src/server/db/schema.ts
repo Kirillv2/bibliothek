@@ -114,6 +114,8 @@ export const loans = pgTable(
     // NFR06, ADR 002: höchstens ein offener Ausleihvorgang je Exemplar
     uniqueIndex("loans_one_open_per_copy").on(t.copyId).where(sql`returned_at IS NULL`),
     index("loans_member_id_idx").on(t.memberId),
+    // F-08: Fristprüfung sucht offene Vorgänge nach Fälligkeit (Migration 002)
+    index("loans_offen_faelligkeit_idx").on(t.dueDate).where(sql`returned_at IS NULL`),
     check("loans_renewal_count_check", sql`renewal_count >= 0`),
   ],
 );
@@ -169,6 +171,10 @@ export const notifications = pgTable(
   },
   (t) => [
     index("notifications_user_id_idx").on(t.userId),
+    // ADR 007, NFR04 (Migration 002)
+    uniqueIndex("notifications_erinnerung_eindeutig").on(t.loanId, t.dueDate).where(sql`type = 'ERINNERUNG'`),
+    uniqueIndex("notifications_mahnung_eindeutig").on(t.loanId).where(sql`type = 'MAHNUNG'`),
+    uniqueIndex("notifications_abholbereit_eindeutig").on(t.reservationId).where(sql`type = 'ABHOLBEREIT'`),
     check("notifications_type_check", inListe("type", BENACHRICHTIGUNG_TYPEN)),
   ],
 );

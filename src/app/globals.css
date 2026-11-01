@@ -221,3 +221,40 @@ dl.metadaten dd {
   margin: 0;
   gap: 0.5rem;
 }
+
+/* F-08 / F-10: Benachrichtigungen */
+.liste-benachrichtigungen {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.liste-benachrichtigungen li {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--rand);
+  border-radius: 0.5rem;
+}
+
+.liste-benachrichtigungen li.ungelesen {
+  border-left: 4px solid var(--akzent);
+  background: var(--flaeche);
+}
+
+.marke-art {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gedaempft);
+}
+
+.art-mahnung {
+  color: var(--fehler);
+}
+
+.zaehler {
+  font-weight: 700;
+}
