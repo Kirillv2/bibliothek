@@ -17,7 +17,8 @@ export type Fehlercode =
   | "MAHNUNG_BEGLICHEN"
   | "EXEMPLAR_VERFUEGBAR"
   | "BEREITS_VORGEMERKT"
-  | "EMAIL_VERGEBEN";
+  | "EMAIL_VERGEBEN"
+  | "EIGENE_ROLLE";
 
 export type Fehler = { ok: false; fehler: Fehlercode; felder?: Record<string, string> };
 
