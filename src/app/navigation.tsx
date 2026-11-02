@@ -4,6 +4,7 @@ import { zaehleUngeleseneBenachrichtigungen } from "@/server/benachrichtigungen"
 import { holeDatenbank } from "@/server/db/verbindung";
 import { systemUhr } from "@/server/kontext";
 import { abmelden } from "./aktionen/anmeldung";
+import { NavLink } from "./nav-link";
 
 /** Menü je Rolle (Rechte-Matrix). Das Ausblenden ist nur Bedienhilfe; geprüft wird auf dem Server. */
 export async function Navigation() {
@@ -14,31 +15,37 @@ export async function Navigation() {
   return (
     <>
       <nav aria-label="Hauptmenü">
-        <Link href="/">Katalog</Link>
+        <NavLink href="/">Katalog</NavLink>
         {sitzung?.role === "MITGLIED" && (
           <>
-            <Link href="/konto/ausleihen">Meine Ausleihen</Link>
-            <Link href="/konto/vormerkungen">Meine Vormerkungen</Link>
+            <NavLink href="/konto/ausleihen">Meine Ausleihen</NavLink>
+            <NavLink href="/konto/vormerkungen">Meine Vormerkungen</NavLink>
           </>
         )}
         {sitzung?.role === "BIBLIOTHEKAR" && (
           <>
-            <Link href="/verwaltung/dashboard">Dashboard</Link>
-            <Link href="/verwaltung/titel">Titel verwalten</Link>
-            <Link href="/verwaltung/rueckgabe">Rückgabe erfassen</Link>
-            <Link href="/verwaltung/mahnungen">Mahnungen</Link>
+            <NavLink href="/verwaltung/dashboard">Dashboard</NavLink>
+            <NavLink href="/verwaltung/titel">Titel verwalten</NavLink>
+            <NavLink href="/verwaltung/rueckgabe">Rückgabe erfassen</NavLink>
+            <NavLink href="/verwaltung/mahnungen">Mahnungen</NavLink>
           </>
         )}
         {sitzung?.role === "ADMINISTRATOR" && (
           <>
-            <Link href="/admin/nutzer">Nutzer und Rollen</Link>
-            <Link href="/admin/parameter">Systemparameter</Link>
+            <NavLink href="/admin/nutzer">Nutzer und Rollen</NavLink>
+            <NavLink href="/admin/parameter">Systemparameter</NavLink>
           </>
         )}
         {sitzung && (
-          <Link href="/konto/benachrichtigungen">
-            Benachrichtigungen{ungelesen > 0 && <span className="zaehler"> ({ungelesen})</span>}
-          </Link>
+          <NavLink href="/konto/benachrichtigungen">
+            Benachrichtigungen
+            {ungelesen > 0 && (
+              <span className="zaehler">
+                {ungelesen}
+                <span className="nur-vorleser"> ungelesen</span>
+              </span>
+            )}
+          </NavLink>
         )}
       </nav>
       {sitzung ? (
@@ -48,7 +55,9 @@ export async function Navigation() {
           </button>
         </form>
       ) : (
-        <Link href="/anmelden">Anmelden</Link>
+        <Link href="/anmelden" className="knopf leise">
+          Anmelden
+        </Link>
       )}
     </>
   );

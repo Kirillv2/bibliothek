@@ -7,7 +7,7 @@ export function RegistrierungFormular({ ziel }: { ziel: string }) {
   const [stand, absenden, laeuft] = useActionState(registrierungAbsenden, null);
   const felder = stand?.felder ?? {};
   return (
-    <form action={absenden} className="felder">
+    <form action={absenden} className="felder schmal">
       <input type="hidden" name="weiter" value={ziel} />
       {stand && !stand.felder && (
         <p className="meldung fehler" role="alert">

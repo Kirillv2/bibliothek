@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { formatiereDatum } from "@/lib/datum";
 import { ladeTitelDetail } from "@/server/katalog/detail";
 import { erstelleKontext } from "@/server/anfrage";
-import { statusText } from "../../exemplarstatus-text";
+import { statusKlasse, statusText } from "../../exemplarstatus-text";
 import { AusleihenKnopf } from "./ausleihen-knopf";
 import { VormerkenKnopf } from "./vormerken-knopf";
 
@@ -85,22 +85,26 @@ export default async function TitelSeite({ params }: PageProps<"/titel/[titleId]
       {titel.exemplare.length === 0 ? (
         <p>Zu diesem Titel gibt es noch keine Exemplare.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Inventarnummer</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {titel.exemplare.map((exemplar) => (
-              <tr key={exemplar.inventoryNumber}>
-                <td>{exemplar.inventoryNumber}</td>
-                <td>{statusText(exemplar)}</td>
+        <div className="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr>
+                <th>Inventarnummer</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {titel.exemplare.map((exemplar) => (
+                <tr key={exemplar.inventoryNumber}>
+                  <td>{exemplar.inventoryNumber}</td>
+                  <td>
+                  <span className={statusKlasse(exemplar.status)}>{statusText(exemplar)}</span>
+                </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   );

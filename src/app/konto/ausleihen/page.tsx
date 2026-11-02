@@ -27,62 +27,66 @@ export default async function MeineAusleihen() {
           Du hast gerade nichts ausgeliehen.
         </p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Titel</th>
-              <th>Inventarnummer</th>
-              <th>Fällig am</th>
-              <th>Verlängern</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ergebnis.daten.map((ausleihe) => (
-              <tr key={ausleihe.loanId}>
-                <td>{ausleihe.title}</td>
-                <td>{ausleihe.inventoryNumber}</td>
-                <td>
-                  {formatiereDatum(ausleihe.dueDate)}
-                  {ausleihe.dueDate < heute && <span className="feldfehler"> (überfällig)</span>}
-                </td>
-                <td>
-                  {ausleihe.verlaengerbar ? (
-                    <VerlaengernKnopf loanId={ausleihe.loanId} titel={ausleihe.title} />
-                  ) : (
-                    // AK-02.8: warum Verlängern nicht möglich ist
-                    <span className="hinweis">{ausleihe.grund ? FEHLERTEXTE[ausleihe.grund] : "Nicht möglich."}</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-      {mahnungen.ok && mahnungen.daten.length > 0 && (
-        <>
-          <h2>Meine Mahnungen</h2>
+        <div className="tabelle-rahmen">
           <table>
             <thead>
               <tr>
-                <th>Datum</th>
                 <th>Titel</th>
                 <th>Inventarnummer</th>
-                <th>Gebühr</th>
-                <th>Status</th>
+                <th>Fällig am</th>
+                <th>Verlängern</th>
               </tr>
             </thead>
             <tbody>
-              {mahnungen.daten.map((m) => (
-                <tr key={m.dunningId}>
-                  <td>{formatiereDatum(m.createdOn)}</td>
-                  <td>{m.title}</td>
-                  <td>{m.inventoryNumber}</td>
-                  <td>{formatiereCent(m.gebuehrCents)}</td>
-                  <td>{m.beglichen ? "beglichen" : <span className="feldfehler">offen</span>}</td>
+              {ergebnis.daten.map((ausleihe) => (
+                <tr key={ausleihe.loanId}>
+                  <td>{ausleihe.title}</td>
+                  <td>{ausleihe.inventoryNumber}</td>
+                  <td>
+                    {formatiereDatum(ausleihe.dueDate)}
+                    {ausleihe.dueDate < heute && <span className="feldfehler"> (überfällig)</span>}
+                  </td>
+                  <td>
+                    {ausleihe.verlaengerbar ? (
+                      <VerlaengernKnopf loanId={ausleihe.loanId} titel={ausleihe.title} />
+                    ) : (
+                      // AK-02.8: warum Verlängern nicht möglich ist
+                      <span className="hinweis">{ausleihe.grund ? FEHLERTEXTE[ausleihe.grund] : "Nicht möglich."}</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {mahnungen.ok && mahnungen.daten.length > 0 && (
+        <>
+          <h2>Meine Mahnungen</h2>
+          <div className="tabelle-rahmen">
+            <table>
+              <thead>
+                <tr>
+                  <th>Datum</th>
+                  <th>Titel</th>
+                  <th>Inventarnummer</th>
+                  <th>Gebühr</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mahnungen.daten.map((m) => (
+                  <tr key={m.dunningId}>
+                    <td>{formatiereDatum(m.createdOn)}</td>
+                    <td>{m.title}</td>
+                    <td>{m.inventoryNumber}</td>
+                    <td>{formatiereCent(m.gebuehrCents)}</td>
+                    <td>{m.beglichen ? "beglichen" : <span className="feldfehler">offen</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {mahnungen.daten.some((m) => !m.beglichen) && (
             <p className="hinweis">Solange eine Mahnung offen ist, kannst du nichts Neues ausleihen. Beglichen wird sie in der Bibliothek.</p>
           )}
