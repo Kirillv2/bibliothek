@@ -1,5 +1,7 @@
 // F-06 · E03-US02 · Meine Ausleihen: offene Vorgänge mit Fälligkeit und Verlängern (nur eigene Daten)
 import { formatiereDatum } from "@/lib/datum";
+import { formatiereCent } from "@/lib/geld";
+import { ladeMeineMahnungen } from "@/server/mahnungen";
 import { erstelleKontext } from "@/server/anfrage";
 import { ladeMeineAusleihen } from "@/server/verlaengerung";
 import { FEHLERTEXTE } from "../../meldungen";
@@ -13,6 +15,8 @@ export default async function MeineAusleihen() {
   const ergebnis = await ladeMeineAusleihen(k);
   if (!ergebnis.ok) return <Zugriffsfehler fehler={ergebnis.fehler} pfad="/konto/ausleihen" />;
   const heute = k.uhr.heute();
+  // F-09 AK-02.6, OF-R4: eigene Mahnungen
+  const mahnungen = await ladeMeineMahnungen(k);
 
   return (
     <>
@@ -53,6 +57,36 @@ export default async function MeineAusleihen() {
             ))}
           </tbody>
         </table>
+      )}
+      {mahnungen.ok && mahnungen.daten.length > 0 && (
+        <>
+          <h2>Meine Mahnungen</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Datum</th>
+                <th>Titel</th>
+                <th>Inventarnummer</th>
+                <th>Gebühr</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mahnungen.daten.map((m) => (
+                <tr key={m.dunningId}>
+                  <td>{formatiereDatum(m.createdOn)}</td>
+                  <td>{m.title}</td>
+                  <td>{m.inventoryNumber}</td>
+                  <td>{formatiereCent(m.gebuehrCents)}</td>
+                  <td>{m.beglichen ? "beglichen" : <span className="feldfehler">offen</span>}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {mahnungen.daten.some((m) => !m.beglichen) && (
+            <p className="hinweis">Solange eine Mahnung offen ist, kannst du nichts Neues ausleihen. Beglichen wird sie in der Bibliothek.</p>
+          )}
+        </>
       )}
     </>
   );

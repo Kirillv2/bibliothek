@@ -258,3 +258,8 @@ dl.metadaten dd {
 .zaehler {
   font-weight: 700;
 }
+
+/* Breite Tabellen auf schmalen Bildschirmen seitlich scrollbar */
+.tabelle-rahmen {
+  overflow-x: auto;
+}

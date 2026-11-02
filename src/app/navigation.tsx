@@ -20,6 +20,7 @@ export async function Navigation() {
           <>
             <Link href="/verwaltung/titel">Titel verwalten</Link>
             <Link href="/verwaltung/rueckgabe">Rückgabe erfassen</Link>
+            <Link href="/verwaltung/mahnungen">Mahnungen</Link>
           </>
         )}
         {sitzung && (
