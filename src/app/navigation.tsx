@@ -28,6 +28,12 @@ export async function Navigation() {
             <Link href="/verwaltung/mahnungen">Mahnungen</Link>
           </>
         )}
+        {sitzung?.role === "ADMINISTRATOR" && (
+          <>
+            <Link href="/admin/nutzer">Nutzer und Rollen</Link>
+            <Link href="/admin/parameter">Systemparameter</Link>
+          </>
+        )}
         {sitzung && (
           <Link href="/konto/benachrichtigungen">
             Benachrichtigungen{ungelesen > 0 && <span className="zaehler"> ({ungelesen})</span>}

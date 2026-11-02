@@ -19,5 +19,6 @@ export const FEHLERTEXTE: Record<Fehlercode, string> = {
   EXEMPLAR_VERFUEGBAR: "Ein Exemplar ist verfügbar. Du kannst den Titel direkt ausleihen.",
   BEREITS_VORGEMERKT: "Du hast diesen Titel bereits vorgemerkt.",
   EMAIL_VERGEBEN: "Diese E-Mail-Adresse ist schon registriert. Bitte melde dich an.",
+  EIGENE_ROLLE: "Die eigene Rolle kann nicht geändert werden. Das muss ein anderer Administrator tun.",
   TITEL_NICHT_ARCHIVIERBAR: "Der Titel kann nicht archiviert werden, solange ein Exemplar ausgeliehen oder der Titel vorgemerkt ist.",
 };
