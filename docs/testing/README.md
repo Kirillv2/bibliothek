@@ -2,7 +2,7 @@
 
 - Geschrieben von: Testing-Agent, Modus „Tests schreiben“ (vor Gate 2)
 - Bezug: [ADR 002](../adr/002-persistenz-datenbank.md) (PGlite), [ADR 004](../adr/004-schichten-und-ordnerstruktur.md) (Schichten, Uhr), [ADR 006](../adr/006-konfigurationswerte.md) (Konfigurationswerte), [ADR 008](../adr/008-datum-und-zeitzone.md) (Datum), [Schnittstellen](../architektur/schnittstellen.md)
-- Testpläne je Feature: [F-01](F-01.md) · [F-02](F-02.md) · [F-03](F-03.md) · [F-04](F-04.md) · [F-05](F-05.md) · [F-06](F-06.md) · [F-07](F-07.md)
+- Testpläne je Feature: [F-01](F-01.md) · [F-02](F-02.md) · [F-03](F-03.md) · [F-04](F-04.md) · [F-05](F-05.md) · [F-06](F-06.md) · [F-07](F-07.md) · Woche 2 und 3: [F-08](F-08.md) · [F-09](F-09.md) · [F-10](F-10.md) · [F-11](F-11.md) · [F-12](F-12.md) · [F-13](F-13.md)
 
 Diese Seite beschreibt, was alle Tests der Woche 1 gemeinsam benutzen, und welchen **Vertrag** Development dafür erfüllen muss. Der Vertrag ergänzt [schnittstellen.md](../architektur/schnittstellen.md) nur dort, wo Tests eine konkrete Form brauchen (Modulpfad, Parameter). Fachliche Regeln kommen ausschließlich aus den Specs.
 
@@ -99,3 +99,15 @@ Die E2E-Tests prüfen nur Abläufe, die ohne Testdaten auskommen (Gast): Katalog
 - **PGlite hat nur eine Verbindung.** Parallele Anfragen (NFR06, F-04 AK-01.3) laufen im Test nacheinander. Die Tests prüfen das Ergebnis (genau ein Ausleihvorgang, eindeutige Nummern) und zusätzlich den eindeutigen Index direkt. Echte Gleichzeitigkeit gegen einen PostgreSQL-Server prüft Review & Security beim Deploy.
 - **Anzeige-Details** (z. B. Hinweistexte, deaktivierte Schaltflächen) prüfen die Tests über die Daten, die die Seite bekommt. Was nur die Oberfläche betrifft, steht im Testplan des Features als „manuell an Gate 3“.
 - **Querverweise:** Einige Tests rufen Funktionen anderer Features auf (z. B. F-03 prüft den Katalog aus F-01). Sie werden erst grün, wenn beide Features umgesetzt sind. Der Testplan nennt sie.
+
+## Woche 2 und 3 (F-08 … F-13)
+
+Gleiche Hilfen und gleicher Vertrag. Neu in `tests/helpers/`:
+
+| Datei | Neu |
+|---|---|
+| `daten.ts` | `leseBenachrichtigungen`, `leseJobLaeufe`, `leseVormerkung` |
+| `ergebnis.ts` | Fehlercodes aus Woche 2 und 3 (schnittstellen.md) |
+| `konfiguration.ts` | `sitzungDauerStunden` |
+
+Module und Funktionen stehen in [schnittstellen.md](../architektur/schnittstellen.md), Abschnitt „Woche 2 und 3“. System-Jobs liefern `Ergebnis<T>` wie alle anderen Funktionen; sie prüfen keine Sitzung, weil sie nur über den Endpunkt mit Job-Secret erreichbar sind. Den Endpunkt testen die Rechte-Tests über `bearbeiteJobAnfrage` aus `@/server/jobs/endpunkt` (Secret und Job als Parameter).

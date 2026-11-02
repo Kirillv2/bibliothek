@@ -2,7 +2,7 @@
 // Nur Bibliothekar (Rechte-Matrix, OF-R3). Abschluss, Mahnung und Zuordnung an die Vormerkung
 // geschehen in einer Transaktion (AK-03.5, ADR 005).
 import { sql } from "drizzle-orm";
-import { plusTage, type Datum } from "@/lib/datum";
+import type { Datum } from "@/lib/datum";
 import { berechneMahngebuehrCents } from "@/lib/mahngebuehr";
 import { pruefeRolle } from "./auth/rechte";
 import { zeilen } from "./db";
@@ -11,6 +11,7 @@ import { type MitWeiterenFeldern } from "./eingabe";
 import { Abbruch, erfolg, fehler, type Ergebnis } from "./ergebnis";
 import type { Kontext } from "./kontext";
 import { getSetting } from "./settings";
+import { ordneExemplarZu } from "./vormerkung/zuordnung";
 
 export type RueckgabeErgebnis = {
   loanId: string;
@@ -85,37 +86,26 @@ export async function rueckgabeErfassen(
               ON CONFLICT (loan_id) DO UPDATE SET fee_cents = CASE
                 WHEN dunnings.created_on <= ${vorgang.due_date}::date THEN coalesce(dunnings.fee_cents, 0) + EXCLUDED.fee_cents
                 ELSE EXCLUDED.fee_cents
-              END
-              WHERE dunnings.settled_at IS NULL
+              END,
+              settled_at = NULL, settled_by_id = NULL
+              WHERE dunnings.settled_at IS NULL OR dunnings.created_on <= ${vorgang.due_date}::date
               RETURNING fee_cents`),
           );
+          // F-09 OF-F09-3: beglichen in einer früheren Frist → durch die neue Gebühr wieder offen.
+          // Beglichen in derselben Frist bleibt beglichen (AK-02.5).
           if (gesetzt) mahngebuehrCents = gesetzt.fee_cents;
+          // F-09 AK-01.4, OF-F09-4: Benachrichtigung „Mahnung“, höchstens eine je Vorgang
+          await tx.execute(sql`
+            INSERT INTO notifications (user_id, type, loan_id, created_at)
+            SELECT member_id, 'MAHNUNG', id, ${returnedAt} FROM loans WHERE id = ${vorgang.id}
+            ON CONFLICT (loan_id) WHERE type = 'MAHNUNG' DO NOTHING`);
         }
 
         // E03-US03-FR03: an die früheste wartende Vormerkung des Titels; ein verlorenes Exemplar nicht (AK-03.6, OF-F07-5)
-        let zugeordneteVormerkungId: string | undefined;
-        if (vorgang.condition !== "VERLOREN") {
-          const [naechste] = zeilen<{ id: string; member_id: string }>(
-            await tx.execute(sql`
-              SELECT id, member_id FROM reservations
-              WHERE title_id = ${vorgang.title_id} AND status = 'WARTEND'
-              ORDER BY created_at, id
-              LIMIT 1
-              FOR UPDATE`),
-          );
-          if (naechste) {
-            // AK-03.3: Abholfrist ab dem Tag der Rückgabe
-            const abholfrist = plusTage(heute, await getSetting(tx, "abholfristVormerkungTage"));
-            await tx.execute(sql`
-              UPDATE reservations SET status = 'ABHOLBEREIT', copy_id = ${vorgang.copy_id}, pickup_deadline = ${abholfrist}
-              WHERE id = ${naechste.id}`);
-            // AK-03.4, OF-D8: Benachrichtigung in der App
-            await tx.execute(sql`
-              INSERT INTO notifications (user_id, type, reservation_id, created_at)
-              VALUES (${naechste.member_id}, 'ABHOLBEREIT', ${naechste.id}, ${returnedAt})`);
-            zugeordneteVormerkungId = naechste.id;
-          }
-        }
+        // ordneExemplarZu prüft selbst, dass das Exemplar ausleihbar ist (ADR 005); ein verlorenes nicht (AK-03.6)
+        // AK-03.3: Abholfrist ab dem Tag der Rückgabe · AK-03.4, OF-D8: Benachrichtigung in der App
+        const zuordnung = await ordneExemplarZu(tx, { copyId: vorgang.copy_id, heute, jetzt: returnedAt });
+        const zugeordneteVormerkungId = zuordnung?.reservationId;
 
         return {
           loanId: vorgang.id,

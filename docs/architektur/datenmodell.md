@@ -103,6 +103,7 @@ Constraint **NFR06:** `UNIQUE (copyId) WHERE returnedAt IS NULL` (ADR 002).
 | `settledById` | → User | nein | Bibliothekar, der beglichen markiert |
 
 „Offene Mahnung“ heißt: `settledAt IS NULL`. Das betroffene Exemplar ergibt sich über `loanId`.
+Begleichen erst, wenn keine Überschreitung mehr läuft (OF-F09-2); eine beglichene Mahnung aus einer früheren Frist wird bei neuer Gebühr wieder offen (OF-F09-3).
 Verlängerung und Mahnung: Eine Verlängerung am oder vor der Fälligkeit verhindert die Mahnung; eine Verlängerung danach lässt sie offen (E03-US02-FR03, OF-F06-3/-4).
 
 ### `Reservation` – Vormerkung (Woche 2; in Woche 1 gelesen von F-02, F-03, F-06, F-07)
@@ -117,7 +118,7 @@ Verlängerung und Mahnung: Eine Verlängerung am oder vor der Fälligkeit verhin
 | `copyId` | → Copy | nein | gesetzt, sobald ein Exemplar zugeordnet ist: bei Rückgabe (E03-US03-FR03) und immer, wenn ein Exemplar des Titels ausleihbar wird (OF-F10-1) |
 | `pickupDeadline` | Datum | nein | Ende der Abholfrist, `abholfristVormerkungTage` (E05-US01-FR03) |
 
-„Aktive Vormerkung“ heißt: Status `WARTEND` oder `ABHOLBEREIT`. Ob eine Person ihre Vormerkung selbst zurückziehen kann (Status `STORNIERT`), sagt die Spezifikation nicht; das klärt die Spec F-10.
+„Aktive Vormerkung“ heißt: Status `WARTEND` oder `ABHOLBEREIT`. Zurückziehen ist nicht vorgesehen, es gibt keinen Status `STORNIERT` (OF-F10-6). Höchstens eine aktive Vormerkung je Mitglied und Titel (OF-F10-2). Abholen = Ausleihe des zugeordneten Exemplars → `ABGEHOLT` (OF-F10-3).
 
 ### `Notification` – Benachrichtigung (Woche 2)
 
@@ -133,6 +134,7 @@ Verlängerung und Mahnung: Eine Verlängerung am oder vor der Fälligkeit verhin
 | `readAt` | Zeitstempel | nein | |
 
 Kanal: nur Anzeige in der App, kein E-Mail-Versand (OF-D8).
+Eindeutig (NFR04, ADR 007): `ERINNERUNG` je `(loan_id, due_date)`, `MAHNUNG` je `loan_id`, `ABHOLBEREIT` je `reservation_id` (Migration 002).
 
 ### `SystemSetting` – Systemparameter (Woche 3; in Woche 1 nur gelesen)
 

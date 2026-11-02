@@ -1,7 +1,7 @@
-# Schnittstellen (API-Verträge) – Woche 1
+# Schnittstellen (API-Verträge) – Woche 1 bis 3
 
 - Status: Entschieden (Agenten im Auftrag von KiKo, siehe [ADR 009](../adr/009-entscheidungen-zu-luecken-der-spezifikation.md)); Freigabe an Gate 1
-- Bezug: F-01 … F-07, [ADR 003](../adr/003-authentifizierung-sitzungen.md), [ADR 004](../adr/004-schichten-und-ordnerstruktur.md)
+- Bezug: F-01 … F-13 (Woche 2 und 3 ergänzt am 01.11.2026, Gate 1 in den Issues #24 … #29), [ADR 003](../adr/003-authentifizierung-sitzungen.md), [ADR 004](../adr/004-schichten-und-ordnerstruktur.md)
 
 Die Verträge legen Namen, Eingaben, Ergebnisse und Fehlercodes fest, damit Testing (vor Gate 2) und Development dieselbe Grundlage haben. Seitenpfade sind ein Vorschlag; maßgeblich sind die Funktionen.
 
@@ -27,6 +27,12 @@ Die Verträge legen Namen, Eingaben, Ergebnisse und Fehlercodes fest, damit Test
 | `MAX_VERLAENGERUNGEN_ERREICHT` | `renewalCount` ≥ `maxVerlaengerungen` | F-06 |
 | `AUSLEIHVORGANG_ABGESCHLOSSEN` | Rückgabe/Verlängerung eines bereits abgeschlossenen Vorgangs | F-06, F-07 |
 | `TITEL_NICHT_ARCHIVIERBAR` | ein Exemplar ist noch ausgeliehen oder vorgemerkt | F-03 |
+| `UEBERSCHREITUNG_LAEUFT` | Mahnung begleichen, während der Vorgang noch offen und überfällig ist (OF-F09-2) | F-09 |
+| `MAHNUNG_BEGLICHEN` | Mahnung ist schon beglichen | F-09 |
+| `EXEMPLAR_VERFUEGBAR` | Vormerken, obwohl ein Exemplar verfügbar ist (E05-US01-FR01) | F-10 |
+| `BEREITS_VORGEMERKT` | Mitglied hat für den Titel schon eine aktive Vormerkung (OF-F10-2) | F-10 |
+| `EMAIL_VERGEBEN` | Registrierung mit schon registrierter E-Mail (OF-F11-3) | F-11 |
+| `EIGENE_ROLLE` | Administrator will die eigene Rolle ändern (OF-F12-1) | F-12 |
 
 ## Lese-Schnittstellen (Server, ohne Wirkung)
 
@@ -82,6 +88,63 @@ Bei `verlaengern`: Anmeldung → Rolle → Vorgang gehört dem Mitglied → Vorg
 | `/konto/ausleihen` | eigene Ausleihen, Verlängern | Mitglied |
 | `/verwaltung/titel` (+ `/neu`, `/[titleId]`) | Titel und Exemplare pflegen | Bibliothekar |
 | `/verwaltung/rueckgabe` | Rückgabe per Inventarnummer | Bibliothekar |
+
+## Woche 2 und 3 (F-08 … F-13)
+
+Gleiche Regeln wie oben. Module unter `src/server/`, alle Funktionen mit Kontext `k` als erstem Parameter.
+
+### System-Jobs (Rolle System, ADR 007)
+
+| Funktion / Endpunkt | Feature | Wirkung | Ergebnis |
+|---|---|---|---|
+| `fristpruefung(k)` aus `@/server/jobs/fristpruefung` · `POST /api/system/jobs/fristpruefung` | F-08, F-09 | Erinnerungen (Vorlauf), Markierung „überfällig“, Mahnungen mit Benachrichtigung `MAHNUNG`, Wiederöffnen nach OF-F09-3; Eintrag in `job_runs` | `{ stichtag, erinnerungen, ueberfaellig, mahnungen }` (Anzahl neu entstandener Einträge) |
+| `abholfristen(k)` aus `@/server/jobs/abholfristen` · `POST /api/system/jobs/abholfristen` | F-10 | abgelaufene Abholoptionen → `ABGELAUFEN`, Exemplar an die nächste wartende Vormerkung oder frei; Eintrag in `job_runs` | `{ stichtag, abgelaufen, nachgerueckt }` |
+
+Die Funktionen prüfen keine Sitzung; sie sind nur über den Endpunkt mit `Authorization: Bearer <JOB_SECRET>` erreichbar (sonst `401`). Stichtag = `k.uhr.heute()`.
+
+### Lese-Funktionen
+
+| Funktion | Modul | Feature | Rolle | Ergebnis |
+|---|---|---|---|---|
+| `ladeMeineBenachrichtigungen(k)` | `@/server/benachrichtigungen` | F-08, F-10 | angemeldet (eigene) | `{ notificationId, type, createdAt, gelesen, title?, inventoryNumber?, dueDate?, pickupDeadline? }[]`, neueste zuerst |
+| `ladeMahnungen(k, { nurOffene? })` | `@/server/mahnungen` | F-09 | Bibliothekar | `{ dunningId, loanId, createdOn, mitgliedEmail, title, inventoryNumber, dueDate, ueberschritteneTage, gebuehrCents, beglichen }[]` |
+| `ladeMeineMahnungen(k)` | `@/server/mahnungen` | F-09 | Mitglied (eigene) | `{ dunningId, createdOn, title, inventoryNumber, gebuehrCents, beglichen }[]` |
+| `ladeMeineVormerkungen(k)` | `@/server/vormerkung` | F-10 | Mitglied (eigene) | aktive Vormerkungen `{ reservationId, titleId, title, status, position?, inventoryNumber?, pickupDeadline? }[]` |
+| `ladeNutzer(k)` | `@/server/administration` | F-12 | Administrator | `{ userId, email, role }[]` nach E-Mail |
+| `ladeSystemparameter(k)` | `@/server/administration` | F-12 | Administrator | `{ name, wert, standard, min, max, quelle }[]` |
+| `ladeDashboard(k, { sortierung?: "FAELLIGKEIT" \| "MITGLIED", richtung?: "AUF" \| "AB" })` | `@/server/dashboard` | F-13 | Bibliothekar | `{ kennzahlen: { offeneAusleihen, ueberfaellig, aktiveVormerkungen }, ueberfaellige: { loanId, mitgliedEmail, title, inventoryNumber, dueDate, ueberschritteneTage }[] }` |
+| `ladeVorgang(k, loanId)` | `@/server/dashboard` | F-13 | Bibliothekar | `{ loanId, title, inventoryNumber, mitgliedEmail, startDate, dueDate, renewalCount, overdueSince, returnedAt, mahnung? }` |
+| `exportiereBestandCsv(k)` | `@/server/dashboard` | F-13 | Bibliothekar | `{ dateiname, inhalt }` (CSV-Text) |
+
+`ladeTitelDetail` (F-02) bekommt für ein Mitglied das Feld `meineVormerkung?: { status, position?, pickupDeadline? }` (nur eigene, F-10 AK-01.5); `aktionen.ausleihen` ist für das Mitglied mit abholbereiter Vormerkung wahr, `aktionen.vormerken` ist falsch, wenn es schon vorgemerkt hat.
+
+### Server Actions
+
+| Action | Modul | Feature | Rolle | Eingabe | Ergebnis bei Erfolg | Mögliche Fehler |
+|---|---|---|---|---|---|---|
+| `benachrichtigungenGelesen` | `@/server/benachrichtigungen` | F-08 | angemeldet | – | `{ anzahl }` | `NICHT_ANGEMELDET` |
+| `mahnungBegleichen` | `@/server/mahnungen` | F-09 | Bibliothekar | `dunningId` | `{ dunningId, settledAt, gebuehrCents }` | `NICHT_GEFUNDEN`, `UEBERSCHREITUNG_LAEUFT`, `MAHNUNG_BEGLICHEN` |
+| `vormerken` | `@/server/vormerkung` | F-10 | Mitglied | `titleId` | `{ reservationId, position }` | `NICHT_GEFUNDEN`, `BEREITS_VORGEMERKT`, `EXEMPLAR_VERFUEGBAR` |
+| `ausleihen` (geändert) | `@/server/ausleihe` | F-10 | Mitglied | `titleId` | wie oben; mit abholbereiter Vormerkung das zugeordnete Exemplar, Vormerkung `ABGEHOLT` | wie oben |
+| `registrieren` | `@/server/auth/registrierung` | F-11 | Gast | `email`, `passwort` | `{ userId }` | `VALIDIERUNG`, `EMAIL_VERGEBEN` |
+| `rolleZuweisen` | `@/server/administration` | F-12 | Administrator | `userId`, `role` | `{ userId, role }` | `NICHT_GEFUNDEN`, `VALIDIERUNG`, `EIGENE_ROLLE` |
+| `systemparameterAendern` | `@/server/administration` | F-12 | Administrator | `name`, `wert` | `{ name, wert }` | `VALIDIERUNG` |
+
+Prüfreihenfolge bei `vormerken`: Anmeldung → Rolle → Titel existiert/aktiv → schon vorgemerkt → Exemplar verfügbar.
+
+### Seiten (Vorschlag)
+
+| Pfad | Inhalt | Rolle |
+|---|---|---|
+| `/konto/benachrichtigungen` | eigene Benachrichtigungen | angemeldet |
+| `/konto/ausleihen` | zusätzlich eigene Mahnungen | Mitglied |
+| `/konto/vormerkungen` | eigene Vormerkungen mit Platz | Mitglied |
+| `/verwaltung/mahnungen` | Mahnungen, Begleichen | Bibliothekar |
+| `/verwaltung/dashboard` | Kennzahlen, überfällige Ausleihen, Export | Bibliothekar |
+| `/verwaltung/ausleihen/[loanId]` | ein Ausleihvorgang | Bibliothekar |
+| `/verwaltung/bestand.csv` | CSV-Download | Bibliothekar |
+| `/registrieren` | Registrierung | Gast |
+| `/admin/nutzer`, `/admin/parameter` | Rollen, Systemparameter | Administrator |
 
 ## Entscheidungen
 

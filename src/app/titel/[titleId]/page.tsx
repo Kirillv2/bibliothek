@@ -1,10 +1,12 @@
 // F-02 · E01-US02 · Detailseite eines Titels mit Exemplarstatus und Aktionen
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { formatiereDatum } from "@/lib/datum";
 import { ladeTitelDetail } from "@/server/katalog/detail";
 import { erstelleKontext } from "@/server/anfrage";
-import { statusText } from "../../exemplarstatus-text";
+import { statusKlasse, statusText } from "../../exemplarstatus-text";
 import { AusleihenKnopf } from "./ausleihen-knopf";
+import { VormerkenKnopf } from "./vormerken-knopf";
 
 export const instant = false;
 
@@ -47,6 +49,15 @@ export default async function TitelSeite({ params }: PageProps<"/titel/[titleId]
         )}
       </dl>
 
+      {titel.meineVormerkung && (
+        // F-10 AK-01.5, AK-03.3: eigener Stand statt der Aktion „Vormerken“
+        <p className="meldung" role="status">
+          {titel.meineVormerkung.status === "WARTEND"
+            ? `Du hast diesen Titel vorgemerkt: Platz ${titel.meineVormerkung.position} in der Warteschlange.`
+            : `Ein Exemplar liegt für dich bereit. Abholen (ausleihen) bis einschließlich ${formatiereDatum(titel.meineVormerkung.pickupDeadline)}.`}
+        </p>
+      )}
+
       <div className="aktionen">
         {k.sitzung?.role === "MITGLIED" && (
           <AusleihenKnopf titleId={titel.titleId} angeboten={titel.aktionen.ausleihen} />
@@ -65,15 +76,8 @@ export default async function TitelSeite({ params }: PageProps<"/titel/[titleId]
               Vormerken (Anmeldung nötig)
             </Link>
           ) : (
-            // AK-03.4, OF-F02-1: sichtbar, aber deaktiviert, bis F-10 umgesetzt ist
-            <div>
-              <button type="button" disabled aria-describedby="hinweis-vormerken">
-                Vormerken
-              </button>
-              <p id="hinweis-vormerken" className="hinweis">
-                Vormerken ist noch nicht möglich.
-              </p>
-            </div>
+            // F-10 AK-01.5: aktive Aktion für Mitglieder
+            <VormerkenKnopf titleId={titel.titleId} />
           ))}
       </div>
 
@@ -81,22 +85,26 @@ export default async function TitelSeite({ params }: PageProps<"/titel/[titleId]
       {titel.exemplare.length === 0 ? (
         <p>Zu diesem Titel gibt es noch keine Exemplare.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>Inventarnummer</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {titel.exemplare.map((exemplar) => (
-              <tr key={exemplar.inventoryNumber}>
-                <td>{exemplar.inventoryNumber}</td>
-                <td>{statusText(exemplar)}</td>
+        <div className="tabelle-rahmen">
+          <table>
+            <thead>
+              <tr>
+                <th>Inventarnummer</th>
+                <th>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {titel.exemplare.map((exemplar) => (
+                <tr key={exemplar.inventoryNumber}>
+                  <td>{exemplar.inventoryNumber}</td>
+                  <td>
+                  <span className={statusKlasse(exemplar.status)}>{statusText(exemplar)}</span>
+                </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   );

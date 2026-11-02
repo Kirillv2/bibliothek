@@ -126,4 +126,15 @@ export const MIGRATIONEN: Migration[] = [
       `CREATE INDEX "sessions_user_id_idx" ON "sessions" USING btree ("user_id")`,
     ],
   },
+  {
+    // F-08, F-09, F-10 · ADR 007, NFR04: höchstens eine Erinnerung je Vorgang und Fälligkeit,
+    // eine Benachrichtigung „Mahnung“ je Vorgang und eine „abholbereit“ je Vormerkung
+    id: "002_benachrichtigungen_eindeutig",
+    anweisungen: [
+      `CREATE UNIQUE INDEX "notifications_erinnerung_eindeutig" ON "notifications" USING btree ("loan_id","due_date") WHERE type = 'ERINNERUNG'`,
+      `CREATE UNIQUE INDEX "notifications_mahnung_eindeutig" ON "notifications" USING btree ("loan_id") WHERE type = 'MAHNUNG'`,
+      `CREATE UNIQUE INDEX "notifications_abholbereit_eindeutig" ON "notifications" USING btree ("reservation_id") WHERE type = 'ABHOLBEREIT'`,
+      `CREATE INDEX "loans_offen_faelligkeit_idx" ON "loans" USING btree ("due_date") WHERE returned_at IS NULL`,
+    ],
+  },
 ];

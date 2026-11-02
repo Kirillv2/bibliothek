@@ -132,30 +132,36 @@ export default async function KatalogSeite({ searchParams }: PageProps<"/">) {
           <p role="status">
             {ergebnis.daten.gesamt} {ergebnis.daten.gesamt === 1 ? "Treffer" : "Treffer"}
           </p>
-          <table>
-            <thead>
-              <tr>
-                <th>Titel</th>
-                <th>Autor</th>
-                <th>Kategorie</th>
-                <th>Jahr</th>
-                <th>Verfügbare Exemplare</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ergebnis.daten.treffer.map((treffer) => (
-                <tr key={treffer.titleId}>
-                  <td>
-                    <Link href={`/titel/${treffer.titleId}`}>{treffer.title}</Link>
-                  </td>
-                  <td>{treffer.author}</td>
-                  <td>{treffer.category}</td>
-                  <td>{treffer.publicationYear ?? "–"}</td>
-                  <td>{treffer.verfuegbareExemplare}</td>
+          <div className="tabelle-rahmen">
+            <table>
+              <thead>
+                <tr>
+                  <th>Titel</th>
+                  <th>Autor</th>
+                  <th>Kategorie</th>
+                  <th>Jahr</th>
+                  <th>Verfügbare Exemplare</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {ergebnis.daten.treffer.map((treffer) => (
+                  <tr key={treffer.titleId}>
+                    <td>
+                      <Link href={`/titel/${treffer.titleId}`}>{treffer.title}</Link>
+                    </td>
+                    <td>{treffer.author}</td>
+                    <td>{treffer.category}</td>
+                    <td>{treffer.publicationYear ?? "–"}</td>
+                    <td>
+                      <span className={treffer.verfuegbareExemplare > 0 ? "status status-verfuegbar" : "status status-ausgeliehen"}>
+                        {treffer.verfuegbareExemplare}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <Blaettern parameter={parameter} seite={ergebnis.daten.seite} gesamt={ergebnis.daten.gesamt} />
         </>
       )}

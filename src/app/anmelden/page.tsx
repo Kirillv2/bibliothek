@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { anmelden } from "../aktionen/anmeldung";
 
 export const instant = false;
@@ -13,7 +14,7 @@ export default async function AnmeldenSeite({ searchParams }: PageProps<"/anmeld
           E-Mail oder Passwort ist nicht korrekt.
         </p>
       )}
-      <form action={anmelden} className="felder">
+      <form action={anmelden} className="felder schmal">
         <input type="hidden" name="weiter" value={ziel} />
         <label>
           E-Mail
@@ -27,6 +28,10 @@ export default async function AnmeldenSeite({ searchParams }: PageProps<"/anmeld
           <button type="submit">Anmelden</button>
         </div>
       </form>
+      {/* F-11 AK-02.5: Weg zur Registrierung, das Ziel bleibt erhalten */}
+      <p className="hinweis">
+        Noch kein Konto? <Link href={`/registrieren?weiter=${encodeURIComponent(ziel)}`}>Jetzt registrieren</Link>
+      </p>
     </>
   );
 }

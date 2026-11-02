@@ -73,17 +73,35 @@ async function ausleiheInTransaktion(k: Kontext, memberId: string, titleId: stri
     );
     if (Number(offen?.n ?? 0) >= limit) throw new Abbruch(fehler("AUSLEIHLIMIT_ERREICHT"));
 
-    // E03-US01-FR01, OF-F05-1: das verfügbare Exemplar mit der kleinsten Inventarnummer
-    const [exemplar] = zeilen<{ id: string; inventory_number: string }>(
-      await tx.execute(sql`
-        SELECT c.id, c.inventory_number FROM copies c
-        WHERE c.title_id = ${titleId} AND ${exemplarIstVerfuegbar("c")}
-        ORDER BY c.inventory_number
-        LIMIT 1`),
-    );
-    if (!exemplar) throw new Abbruch(fehler("KEIN_EXEMPLAR_VERFUEGBAR"));
-
     const startDate = k.uhr.heute();
+
+    // F-10 AK-03.3, OF-F10-3: Abholen heißt ausleihen. Hat das Mitglied für den Titel eine abholbereite
+    // Vormerkung (bis einschließlich zum letzten Abholtag, OF-F10-7), bekommt es das zugeordnete Exemplar.
+    const [abholung] = zeilen<{ reservation_id: string; id: string; inventory_number: string }>(
+      await tx.execute(sql`
+        SELECT r.id AS reservation_id, c.id, c.inventory_number
+        FROM reservations r JOIN copies c ON c.id = r.copy_id
+        WHERE r.title_id = ${titleId} AND r.member_id = ${memberId} AND r.status = 'ABHOLBEREIT'
+          AND r.pickup_deadline >= ${startDate}::date
+        LIMIT 1
+        FOR UPDATE OF r`),
+    );
+
+    // E03-US01-FR01, OF-F05-1: sonst das verfügbare Exemplar mit der kleinsten Inventarnummer
+    const [exemplar] = abholung
+      ? [abholung]
+      : zeilen<{ id: string; inventory_number: string }>(
+          await tx.execute(sql`
+            SELECT c.id, c.inventory_number FROM copies c
+            WHERE c.title_id = ${titleId} AND ${exemplarIstVerfuegbar("c")}
+            ORDER BY c.inventory_number
+            LIMIT 1`),
+        );
+    if (!exemplar) throw new Abbruch(fehler("KEIN_EXEMPLAR_VERFUEGBAR"));
+    if (abholung) {
+      await tx.execute(sql`UPDATE reservations SET status = 'ABGEHOLT' WHERE id = ${abholung.reservation_id}`);
+    }
+
     const dueDate = berechneFaelligkeit(startDate, await getSetting(tx, "leihfristTage"));
     const [vorgang] = await tx
       .insert(loans)

@@ -12,7 +12,13 @@ export type Fehlercode =
   | "VORMERKUNG_VORHANDEN"
   | "MAX_VERLAENGERUNGEN_ERREICHT"
   | "AUSLEIHVORGANG_ABGESCHLOSSEN"
-  | "TITEL_NICHT_ARCHIVIERBAR";
+  | "TITEL_NICHT_ARCHIVIERBAR"
+  | "UEBERSCHREITUNG_LAEUFT"
+  | "MAHNUNG_BEGLICHEN"
+  | "EXEMPLAR_VERFUEGBAR"
+  | "BEREITS_VORGEMERKT"
+  | "EMAIL_VERGEBEN"
+  | "EIGENE_ROLLE";
 
 export type Fehler = { ok: false; fehler: Fehlercode; felder?: Record<string, string> };
 

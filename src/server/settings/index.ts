@@ -45,3 +45,20 @@ export async function getSetting(db: Datenbank, name: EinstellungName): Promise<
   }
   return wert;
 }
+
+export type EinstellungMitGrenzen = { name: EinstellungName; standard: number; min: number; max: number; quelle: string };
+
+/** Alle Konfigurationswerte aus config/system.defaults.json in der Reihenfolge der Datei (F-12, OF-F12-3). */
+export function alleEinstellungen(): EinstellungMitGrenzen[] {
+  return Object.entries(defaults as unknown as Record<string, unknown>)
+    .filter(([name]) => !name.startsWith("_"))
+    .map(([name, wert]) => {
+      const e = wert as Eintrag & { quelle?: string };
+      return { name: name as EinstellungName, standard: e.standard, min: e.min, max: e.max, quelle: e.quelle ?? "" };
+    });
+}
+
+/** Nur Namen, die als eigener Eintrag in config/system.defaults.json stehen (kein `_hinweis`, kein `__proto__`). */
+export function istEinstellungName(name: unknown): name is EinstellungName {
+  return typeof name === "string" && alleEinstellungen().some((e) => e.name === name);
+}

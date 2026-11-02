@@ -203,3 +203,50 @@ export async function leseMahnungen(pg: PGlite, loanId: string): Promise<Mahnung
 export function zeitpunkt(datum: Datum, uhrzeit = "12:00"): Date {
   return zeitpunktInBerlin(datum, uhrzeit);
 }
+
+/** Benachrichtigung so, wie sie in der DB steht (Woche 2: F-08, F-09, F-10). */
+export type BenachrichtigungZeile = {
+  id: string;
+  user_id: string;
+  type: "ERINNERUNG" | "MAHNUNG" | "ABHOLBEREIT";
+  loan_id: string | null;
+  reservation_id: string | null;
+  due_date: string | null;
+  read_at: Date | null;
+};
+
+/** Alle Benachrichtigungen, optional nur für einen Nutzer; nach Typ und Fälligkeit geordnet. */
+export async function leseBenachrichtigungen(pg: PGlite, userId?: string): Promise<BenachrichtigungZeile[]> {
+  const { rows } = await pg.query<BenachrichtigungZeile>(
+    `SELECT id, user_id, type, loan_id, reservation_id, due_date::text AS due_date, read_at FROM notifications
+     ${userId ? "WHERE user_id = $1" : ""} ORDER BY type, due_date NULLS FIRST, created_at, id`,
+    userId ? [userId] : [],
+  );
+  return rows;
+}
+
+export type JobLaufZeile = { job: string; stichtag: string; finished_at: Date | null; ergebnis: Record<string, unknown> | null };
+
+export async function leseJobLaeufe(pg: PGlite): Promise<JobLaufZeile[]> {
+  const { rows } = await pg.query<JobLaufZeile>(
+    "SELECT job, stichtag::text AS stichtag, finished_at, ergebnis FROM job_runs ORDER BY started_at, finished_at NULLS LAST, id",
+  );
+  return rows;
+}
+
+/** Vormerkung so, wie sie in der DB steht. */
+export type VormerkungZeile = {
+  id: string;
+  member_id: string;
+  status: VormerkungStatus;
+  copy_id: string | null;
+  pickup_deadline: string | null;
+};
+
+export async function leseVormerkung(pg: PGlite, id: string): Promise<VormerkungZeile | undefined> {
+  const { rows } = await pg.query<VormerkungZeile>(
+    "SELECT id, member_id, status, copy_id, pickup_deadline::text AS pickup_deadline FROM reservations WHERE id = $1",
+    [id],
+  );
+  return rows[0];
+}

@@ -1,26 +1,45 @@
 :root {
   --hintergrund: #ffffff;
-  --text: #1c1c1c;
-  --gedaempft: #5c5c5c;
-  --rand: #d4d4d4;
-  --flaeche: #f4f4f2;
+  --seite: #f4f6f9;
+  --text: #1b1f24;
+  --gedaempft: #57606a;
+  --rand: #d8dee4;
+  --flaeche: #ffffff;
+  --flaeche-2: #f1f4f8;
+  --schatten: 0 1px 2px rgb(16 24 40 / 0.05), 0 2px 6px rgb(16 24 40 / 0.06);
   --akzent: #1f5f8b;
   --akzent-text: #ffffff;
   --fehler: #a4161a;
   --erfolg: #2b6a2f;
+  --akzent-dunkel: #174a6d;
+  --akzent-flaeche: #e7f0f7;
+  --erfolg-flaeche: #e8f3e8;
+  --fehler-flaeche: #fbeaea;
+  --warnung: #7a4f00;
+  --warnung-flaeche: #fdf3dc;
+  --radius: 0.65rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --hintergrund: #121212;
-    --text: #ececec;
-    --gedaempft: #a6a6a6;
-    --rand: #3a3a3a;
-    --flaeche: #1d1d1d;
+    --hintergrund: #121417;
+    --seite: #0e1013;
+    --text: #e8eaed;
+    --gedaempft: #a2a9b1;
+    --rand: #33383e;
+    --flaeche: #181b1f;
+    --flaeche-2: #20242a;
+    --schatten: 0 1px 2px rgb(0 0 0 / 0.4);
     --akzent: #6fb3e0;
     --akzent-text: #0b0b0b;
     --fehler: #ff8a8a;
     --erfolg: #8fd694;
+    --akzent-dunkel: #9fd0f0;
+    --akzent-flaeche: #16283a;
+    --erfolg-flaeche: #15291a;
+    --fehler-flaeche: #3a1717;
+    --warnung: #f0c060;
+    --warnung-flaeche: #33280f;
   }
 }
 
@@ -31,7 +50,7 @@
 body {
   margin: 0;
   color: var(--text);
-  background: var(--hintergrund);
+  background: var(--seite);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
   line-height: 1.5;
 }
@@ -41,15 +60,24 @@ a {
 }
 
 .kopf {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   border-bottom: 1px solid var(--rand);
   background: var(--flaeche);
+  box-shadow: var(--schatten);
 }
 
 .kopf-innen,
 main {
-  max-width: 64rem;
+  max-width: 72rem;
   margin: 0 auto;
   padding: 0.75rem 1rem;
+}
+
+main {
+  padding-top: 1.25rem;
+  padding-bottom: 3rem;
 }
 
 .kopf-innen {
@@ -62,18 +90,100 @@ main {
 .kopf-innen nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 1rem;
+  gap: 0.25rem;
   flex: 1;
 }
 
+.kopf-innen nav a {
+  padding: 0.3rem 0.55rem;
+  font-size: 0.95rem;
+  border-radius: 0.35rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.kopf-innen nav a:hover {
+  background: var(--akzent-flaeche);
+}
+
+.kopf-innen nav a[aria-current="page"] {
+  background: var(--akzent-flaeche);
+  color: var(--akzent);
+  font-weight: 600;
+}
+
+.kopf-innen button.leise {
+  padding: 0.3rem 0.7rem;
+}
+
 .marke {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 1.1rem;
   font-weight: 700;
   text-decoration: none;
   color: var(--text);
 }
 
+.marke-zeichen {
+  width: 1.4rem;
+  height: 1.4rem;
+  fill: var(--akzent);
+}
+
+/* Schmale Bildschirme: Marke und Abmelden oben, Menü darunter als scrollbare Zeile */
+@media (max-width: 40rem) {
+  .kopf-innen {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .kopf-innen nav {
+    min-width: 0;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 -1rem;
+    padding: 0 1rem 0.25rem;
+    white-space: nowrap;
+  }
+}
+
+/* Tastatur: sichtbarer Fokus, Sprung zum Inhalt */
+:focus-visible {
+  outline: 2px solid var(--akzent);
+  outline-offset: 2px;
+}
+
+.sprung {
+  position: absolute;
+  left: -9999px;
+}
+
+.sprung:focus {
+  left: 1rem;
+  top: 0.5rem;
+  z-index: 20;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius);
+  background: var(--hintergrund);
+}
+
+.nur-vorleser {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 h1 {
-  font-size: 1.6rem;
+  font-size: 1.75rem;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   margin: 0.5rem 0 1rem;
 }
 
@@ -89,8 +199,20 @@ form.felder {
   align-items: end;
   padding: 1rem;
   border: 1px solid var(--rand);
-  border-radius: 0.5rem;
+  border-radius: var(--radius);
   background: var(--flaeche);
+  box-shadow: var(--schatten);
+}
+
+/* Anmelden, Registrieren: ein schmales Formular in einer Spalte */
+form.felder.schmal {
+  max-width: 26rem;
+  grid-template-columns: 1fr;
+  align-items: stretch;
+}
+
+form.felder.schmal p {
+  margin: -0.5rem 0 0;
 }
 
 form.felder .breit {
@@ -122,26 +244,48 @@ select,
 textarea {
   padding: 0.4rem 0.5rem;
   border: 1px solid var(--rand);
-  border-radius: 0.3rem;
+  border-radius: 0.4rem;
   background: var(--hintergrund);
   color: var(--text);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  border-color: var(--akzent);
+  outline-offset: 0;
 }
 
 button,
 .knopf {
   display: inline-block;
-  padding: 0.45rem 0.9rem;
+  padding: 0.45rem 0.95rem;
   border: 1px solid var(--akzent);
-  border-radius: 0.3rem;
+  border-radius: 0.45rem;
+  font-weight: 500;
+  transition: background-color 0.15s, border-color 0.15s;
   background: var(--akzent);
   color: var(--akzent-text);
   cursor: pointer;
   text-decoration: none;
 }
 
-button.leise {
+button:hover:not(:disabled),
+.knopf:hover {
+  border-color: var(--akzent-dunkel);
+  background: var(--akzent-dunkel);
+}
+
+button.leise,
+.knopf.leise {
   background: transparent;
   color: var(--akzent);
+}
+
+button.leise:hover:not(:disabled),
+.knopf.leise:hover {
+  background: var(--akzent-flaeche);
+  border-color: var(--akzent);
 }
 
 button:disabled {
@@ -158,9 +302,24 @@ table {
 th,
 td {
   text-align: left;
-  padding: 0.45rem 0.5rem;
+  padding: 0.5rem 0.6rem;
   border-bottom: 1px solid var(--rand);
   vertical-align: top;
+}
+
+thead th {
+  border-bottom-width: 1px;
+  background: var(--flaeche-2);
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+tbody tr:hover {
+  background: var(--flaeche-2);
 }
 
 .hinweis {
@@ -169,19 +328,53 @@ td {
 
 .meldung {
   padding: 0.75rem 1rem;
-  border-radius: 0.4rem;
+  border-radius: var(--radius);
   border: 1px solid var(--rand);
+  border-left-width: 4px;
+  background: var(--flaeche);
   margin: 1rem 0;
 }
 
 .meldung.fehler {
   border-color: var(--fehler);
+  background: var(--fehler-flaeche);
   color: var(--fehler);
 }
 
 .meldung.erfolg {
   border-color: var(--erfolg);
+  background: var(--erfolg-flaeche);
   color: var(--erfolg);
+}
+
+/* Exemplarstatus als Marke; die Farbe ergänzt nur den Text */
+.status {
+  display: inline-block;
+  padding: 0.05rem 0.55rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.status-verfuegbar {
+  background: var(--erfolg-flaeche);
+  color: var(--erfolg);
+}
+
+.status-ausgeliehen {
+  border-color: var(--rand);
+  color: var(--gedaempft);
+}
+
+.status-vorgemerkt {
+  background: var(--warnung-flaeche);
+  color: var(--warnung);
+}
+
+.status-gesperrt {
+  background: var(--fehler-flaeche);
+  color: var(--fehler);
 }
 
 .feldfehler {
@@ -206,7 +399,9 @@ dl.metadaten dt {
 }
 
 dl.metadaten dd {
+  min-width: 0;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .aktionen {
@@ -220,4 +415,116 @@ dl.metadaten dd {
 .aktionen.eng {
   margin: 0;
   gap: 0.5rem;
+}
+
+/* F-08 / F-10: Benachrichtigungen */
+.liste-benachrichtigungen {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.liste-benachrichtigungen li {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  background: var(--flaeche);
+  box-shadow: var(--schatten);
+}
+
+.liste-benachrichtigungen li.ungelesen {
+  border-left: 4px solid var(--akzent);
+}
+
+.marke-art {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gedaempft);
+}
+
+.art-mahnung {
+  color: var(--fehler);
+}
+
+.zaehler {
+  position: relative;
+  display: inline-block;
+  min-width: 1.3rem;
+  margin-left: 0.35rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--akzent);
+  color: var(--akzent-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.3rem;
+  text-align: center;
+}
+
+/* Tabellen als Karte; auf schmalen Bildschirmen seitlich scrollbar */
+.tabelle-rahmen {
+  overflow-x: auto;
+  margin: 0.75rem 0;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  background: var(--flaeche);
+  box-shadow: var(--schatten);
+}
+
+.tabelle-rahmen table {
+  margin: 0;
+}
+
+/* F-13: Kennzahlen auf dem Dashboard */
+.kennzahlen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.kennzahlen li {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  border-left: 4px solid var(--akzent);
+  background: var(--flaeche);
+  box-shadow: var(--schatten);
+}
+
+.kennzahlen li.warnung {
+  border-left-color: var(--fehler);
+}
+
+.kennzahl-wert {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.kennzahlen li.warnung .kennzahl-wert {
+  color: var(--fehler);
+}
+
+.kennzahl-text {
+  color: var(--gedaempft);
+}
+
+/* Detailseiten: Angaben als Karte */
+dl.metadaten {
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  background: var(--flaeche);
+  box-shadow: var(--schatten);
 }
