@@ -15,7 +15,12 @@ export async function Navigation() {
     <>
       <nav aria-label="Hauptmenü">
         <Link href="/">Katalog</Link>
-        {sitzung?.role === "MITGLIED" && <Link href="/konto/ausleihen">Meine Ausleihen</Link>}
+        {sitzung?.role === "MITGLIED" && (
+          <>
+            <Link href="/konto/ausleihen">Meine Ausleihen</Link>
+            <Link href="/konto/vormerkungen">Meine Vormerkungen</Link>
+          </>
+        )}
         {sitzung?.role === "BIBLIOTHEKAR" && (
           <>
             <Link href="/verwaltung/titel">Titel verwalten</Link>

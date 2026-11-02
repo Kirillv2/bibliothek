@@ -8,6 +8,7 @@ import type { Zustand } from "../db/schema";
 import { istUuid } from "../eingabe";
 import { erfolg, fehler, type Ergebnis } from "../ergebnis";
 import type { Kontext } from "../kontext";
+import { eigeneVormerkungZumTitel } from "../vormerkung";
 import { lageDesExemplars } from "./verfuegbarkeit";
 
 export type ExemplarImDetail = { inventoryNumber: string; status: Exemplarstatus; faelligAm?: Datum };
@@ -22,6 +23,8 @@ export type TitelDetail = {
   publicationYear: number | null;
   exemplare: ExemplarImDetail[];
   aktionen: { ausleihen: boolean; vormerken: boolean };
+  /** F-10 AK-01.5: eigene aktive Vormerkung des angemeldeten Mitglieds (nur seine eigene) */
+  meineVormerkung?: { status: "WARTEND"; position: number } | { status: "ABHOLBEREIT"; pickupDeadline: Datum };
 };
 
 /** AK-01.8, AK-01.9, OF-F02-3: nur bekannte, nicht archivierte Titel haben eine Detailseite. */
@@ -72,6 +75,9 @@ export async function ladeTitelDetail(k: Kontext, titleId: string): Promise<Erge
 
   const einesVerfuegbar = exemplare.some((e) => e.status === "VERFUEGBAR");
   const rolle = k.sitzung?.role ?? null;
+  const meineVormerkung = await eigeneVormerkungZumTitel(k, titel.id);
+  // F-10 AK-03.3: wer abholbereit vorgemerkt ist, darf das zugeordnete Exemplar bis zum letzten Abholtag ausleihen
+  const abholbereitFuerMich = meineVormerkung?.status === "ABHOLBEREIT" && meineVormerkung.pickupDeadline >= k.uhr.heute();
   return erfolg({
     titleId: titel.id,
     title: titel.title,
@@ -83,9 +89,11 @@ export async function ladeTitelDetail(k: Kontext, titleId: string): Promise<Erge
     exemplare,
     aktionen: {
       // E01-US02-FR02, OF-R1: nur angemeldete Mitglieder
-      ausleihen: einesVerfuegbar && rolle === "MITGLIED",
-      // E01-US02-FR03, OF-R1, OF-R2: Mitglied und Gast (Gast wird zur Anmeldung geleitet)
-      vormerken: !einesVerfuegbar && (rolle === null || rolle === "MITGLIED"),
+      ausleihen: (einesVerfuegbar || abholbereitFuerMich) && rolle === "MITGLIED",
+      // E01-US02-FR03, OF-R1, OF-R2: Mitglied und Gast (Gast wird zur Anmeldung geleitet);
+      // F-10 AK-01.5: mit eigener aktiver Vormerkung wird stattdessen deren Stand gezeigt
+      vormerken: !einesVerfuegbar && !meineVormerkung && (rolle === null || rolle === "MITGLIED"),
     },
+    ...(meineVormerkung ? { meineVormerkung } : {}),
   });
 }

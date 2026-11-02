@@ -14,7 +14,9 @@ export type Fehlercode =
   | "AUSLEIHVORGANG_ABGESCHLOSSEN"
   | "TITEL_NICHT_ARCHIVIERBAR"
   | "UEBERSCHREITUNG_LAEUFT"
-  | "MAHNUNG_BEGLICHEN";
+  | "MAHNUNG_BEGLICHEN"
+  | "EXEMPLAR_VERFUEGBAR"
+  | "BEREITS_VORGEMERKT";
 
 export type Fehler = { ok: false; fehler: Fehlercode; felder?: Record<string, string> };
 
