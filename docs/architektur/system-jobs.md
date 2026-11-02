@@ -35,11 +35,12 @@ Pflichttest: Lauf zweimal mit demselben Stichtag → Datenbank nach dem zweiten 
 
 ## Lokal und im Test
 
-- Lokal: `curl -X POST -H "Authorization: Bearer $JOB_SECRET" http://localhost:3000/api/system/jobs/fristpruefung`
+- Lokal: Der eingebaute Zeitgeber (ADR 007 Punkt 7, OF-J3) führt beide Jobs beim Start und danach einmal je Tag aus. Von Hand: `curl -X POST -H "Authorization: Bearer $JOB_SECRET" http://localhost:3000/api/system/jobs/fristpruefung`
 - Tests rufen die Job-Funktion direkt mit fester Uhr auf; Security-Tests rufen den Endpunkt ohne/mit falschem Secret auf.
 
 ## Entscheidungen
 
 - OF-J1, OF-J2: geplanter GitHub-Actions-Workflow, einmal täglich nachts (ADR 007, ADR 009); `config-request` vor Woche 2.
+- OF-J3: eingebauter Zeitgeber für die lokal gestartete App (ADR 007 Punkt 7, #42).
 - Benachrichtigungen nur in der App (OF-D8).
 - Fachliche Detailfragen (z. B. wiederholte Mahnungen): Specs F-08 bis F-10.

@@ -51,6 +51,7 @@ Beim Zerlegen der Spezifikation (v1.0) sind Stellen aufgefallen, an denen der Te
 | OF-S1 | Welcher Fehler, wenn mehrere Gründe zutreffen? | Feste Prüfreihenfolge: Anmeldung → Rolle → Titel existiert und ist aktiv → offene Mahnung → Ausleihlimit → verfügbares Exemplar. | – | Annahme (reine Technik) |
 | OF-J1 | Scheduler der System-Jobs | **Geplanter GitHub-Actions-Workflow**, der täglich den geschützten Endpunkt aufruft. Unabhängig vom Hoster, Läufe sind in GitHub nachvollziehbar. Umsetzung in Woche 2 per `config-request` (`.github/` gehört der Konfigurationsrolle). | E04-US01-FR01 „zeitgesteuerter Prozess prüft täglich“ | Annahme (Technik) |
 | OF-J2 | Uhrzeit des Laufs | **Einmal täglich nachts** (Vorschlag 02:00 Europe/Berlin). Wegen Stichtag und Idempotenz (ADR 007) ist eine Verspätung des Schedulers unkritisch. | E04-US01-FR01 „täglich“ | Annahme (Technik) |
+| OF-J3 | Läuft die Prüfung auch ohne gehostete Instanz von selbst? | **Ja, eingebauter Zeitgeber** im Server-Prozess (Nachtrag 02.11.2026, #42): beim Start und danach stündlich prüfen, ob die Jobs für den heutigen Stichtag schon abgeschlossen sind; fehlende laufen. Der Workflow aus OF-J1 bleibt für serverlose Hoster. | E04-US01-FR01 „zeitgesteuerter Prozess prüft täglich“, NFR05 „lokal startbar“ | Abgeleitet; stündlich: Annahme (Technik) |
 
 ### F-01 Katalog durchsuchen
 
