@@ -1,27 +1,10 @@
 "use server";
-// Anmelden und Abmelden (ADR 003). Woche 1: nur Seed-Nutzer, Registrierung folgt mit F-11.
+// Anmelden und Abmelden (ADR 003, E06-US01-FR01). Registrierung: aktionen/registrierung.ts (F-11).
 import { redirect } from "next/navigation";
 import { pruefeZugangsdaten } from "@/server/auth/anmeldung";
 import { beendeAktuelleSitzung, starteSitzung } from "@/server/auth/sitzung";
 import { holeDatenbank } from "@/server/db/verbindung";
-
-const INTERN = "http://intern.invalid";
-
-/**
- * Nur Pfade innerhalb der App als Ziel nach der Anmeldung (kein offener Redirect).
- * Aufgelöst wie im Browser: `/\host`, Tabulatoren oder `/.//host` dürfen nicht auf eine fremde Herkunft führen.
- */
-function sicheresZiel(wert: FormDataEntryValue | null): string {
-  if (typeof wert !== "string" || !wert.startsWith("/")) return "/";
-  let url: URL;
-  try {
-    url = new URL(wert, INTERN);
-  } catch {
-    return "/";
-  }
-  const pfad = url.pathname + url.search + url.hash;
-  return url.origin === INTERN && !pfad.startsWith("//") ? pfad : "/";
-}
+import { sicheresZiel } from "../sicheres-ziel";
 
 export async function anmelden(formular: FormData): Promise<void> {
   const email = formular.get("email");
