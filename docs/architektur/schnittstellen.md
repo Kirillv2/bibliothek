@@ -100,7 +100,7 @@ Gleiche Regeln wie oben. Module unter `src/server/`, alle Funktionen mit Kontext
 | `fristpruefung(k)` aus `@/server/jobs/fristpruefung` · `POST /api/system/jobs/fristpruefung` | F-08, F-09 | Erinnerungen (Vorlauf), Markierung „überfällig“, Mahnungen mit Benachrichtigung `MAHNUNG`, Wiederöffnen nach OF-F09-3; Eintrag in `job_runs` | `{ stichtag, erinnerungen, ueberfaellig, mahnungen }` (Anzahl neu entstandener Einträge) |
 | `abholfristen(k)` aus `@/server/jobs/abholfristen` · `POST /api/system/jobs/abholfristen` | F-10 | abgelaufene Abholoptionen → `ABGELAUFEN`, Exemplar an die nächste wartende Vormerkung oder frei; Eintrag in `job_runs` | `{ stichtag, abgelaufen, nachgerueckt }` |
 | `fuehreTagesjobsAus(k)` aus `@/server/jobs/zeitgeber` | F-08, F-10 (OF-J3) | führt `fristpruefung` und danach `abholfristen` aus, wenn es für `k.uhr.heute()` noch keinen abgeschlossenen Lauf in `job_runs` gibt | `{ stichtag, ausgefuehrt: ("FRISTPRUEFUNG" \| "ABHOLFRISTEN")[] }` |
-| `starteZeitgeber({ kontext, intervallMs, timer?, melde? })` aus `@/server/jobs/zeitgeber` | F-08, F-10 (OF-J3) | ruft `fuehreTagesjobsAus` sofort und dann alle `intervallMs` auf; nie zwei Läufe gleichzeitig; Fehler werden gemeldet, nicht geworfen | `{ stoppen(), bereit: Promise<void> }` |
+| `starteZeitgeber({ kontext, intervallMs, timer?, melde? })` aus `@/server/jobs/zeitgeber` | F-08, F-10 (OF-J3) | ruft `fuehreTagesjobsAus` sofort und dann alle `intervallMs` auf; nie zwei Läufe gleichzeitig; Fehler werden gemeldet, nicht geworfen | `{ pruefe(): Promise<void>, stoppen(), bereit: Promise<void> }` |
 
 Die Funktionen prüfen keine Sitzung; sie sind nur über den Endpunkt mit `Authorization: Bearer <JOB_SECRET>` erreichbar (sonst `401`). Stichtag = `k.uhr.heute()`.
 
