@@ -46,7 +46,10 @@ export default async function Mahnungen({ searchParams }: PageProps<"/verwaltung
                   <td>{formatiereDatum(m.createdOn)}</td>
                   <td>{m.mitgliedEmail}</td>
                   <td>{m.title}</td>
-                  <td>{m.inventoryNumber}</td>
+                  <td>
+                    {/* F-13 AK-02.4: Link auf den Vorgang */}
+                    <Link href={`/verwaltung/ausleihen/${m.loanId}`}>{m.inventoryNumber}</Link>
+                  </td>
                   <td>{formatiereDatum(m.dueDate)}</td>
                   <td>{m.ueberschritteneTage}</td>
                   <td>{formatiereCent(m.gebuehrCents)}</td>
