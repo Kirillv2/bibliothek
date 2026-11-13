@@ -38,6 +38,7 @@ Alles, was aus dem Browser oder vom Scheduler kommt, ist **nicht vertrauenswürd
 - Fehlermeldung bei falscher Anmeldung verrät nicht, ob die E-Mail existiert.
 - Sitzung: zufälliges Token im Cookie (`HttpOnly`, `Secure`, `SameSite=Lax`), in der DB nur SHA-256 des Tokens. Abmelden löscht die Sitzung.
 - Passwörter, Hashes und Tokens erscheinen nie in Logs, Fehlermeldungen oder Antworten.
+- Schutz gegen Passwort-Raten (Issue #47): Fehlversuche werden je E-Mail-Adresse gezählt (in `login_attempts` nur der SHA-256-Hash der normalisierten Adresse). Nach `MAX_FEHLVERSUCHE` innerhalb von `SPERRE_MINUTEN` ist die Anmeldung für diese Adresse `SPERRE_MINUTEN` lang gesperrt, auch mit richtigem Passwort. Unbekannte Adressen verhalten sich gleich, die Sperre verrät also nicht, ob es ein Konto gibt. Erfolg setzt die Zählung zurück. Werte: `src/server/auth/anmeldeschutz.ts`. **Annahme** (Spec schweigt): technische Sicherheitswerte wie die Passwort-Mindestlänge, keine fachlichen Konfigurationswerte. Bekannte Grenze: Wer eine fremde Adresse kennt, kann sie kurz sperren; die kurze Dauer hält das klein.
 
 ## 4. Autorisierung (E06-US01-FR02, Rechte-Matrix)
 
@@ -59,6 +60,7 @@ Alles, was aus dem Browser oder vom Scheduler kommt, ist **nicht vertrauenswürd
 - Datenbankzugriff nur über das ORM bzw. parametrisierte Abfragen, keine zusammengesetzten SQL-Strings mit Eingaben (Freitextsuche F-01!).
 - Server Actions: Next.js prüft die Herkunft (Origin) selbst. Route Handlers mit Schreibwirkung (nur Jobs) sind über das Secret geschützt.
 - Ausgaben werden von React escaped; kein `dangerouslySetInnerHTML` mit Nutzerdaten (z. B. Beschreibung eines Titels).
+- Sicherheits-Header für jede Antwort (Issue #47, `next.config.ts`): `X-Frame-Options: DENY` und CSP `frame-ancestors 'none'` (kein Einbetten, Clickjacking), CSP `form-action 'self'`, `base-uri 'self'`, `object-src 'none'`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` ohne Kamera, Mikrofon, Standort, Zahlung; kein `X-Powered-By`. **Annahme:** keine `script-src`, weil Next.js eigene Inline-Skripte nutzt (bräuchte Nonces auf jeder Seite).
 - CSV-Export (F-13): Werte, die mit `=`, `+`, `-`, `@` beginnen, werden entschärft (CSV-Injection); enthält nur Bestandsdaten, keine Personendaten.
 
 ## 7. Datenintegrität (NFR06)
