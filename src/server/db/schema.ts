@@ -200,3 +200,12 @@ export const jobRuns = pgTable(
   },
   () => [check("job_runs_job_check", inListe("job", JOBS))],
 );
+
+// NFR03, E06-US01-FR01 (Issue #47): Fehlversuche bei der Anmeldung je E-Mail-Adresse.
+// Gespeichert wird nur der SHA-256-Hash der normalisierten Adresse, nie die Adresse selbst.
+export const loginAttempts = pgTable("login_attempts", {
+  emailHash: text("email_hash").primaryKey(),
+  failedCount: integer("failed_count").notNull(),
+  windowStart: zeitstempel("window_start").notNull(),
+  lockedUntil: zeitstempel("locked_until"),
+});

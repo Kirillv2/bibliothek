@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SPERRE_MINUTEN } from "@/server/auth/anmeldeschutz";
 import { anmelden } from "../aktionen/anmeldung";
 
 export const instant = false;
@@ -9,10 +10,17 @@ export default async function AnmeldenSeite({ searchParams }: PageProps<"/anmeld
   return (
     <>
       <h1>Anmelden</h1>
-      {fehler && (
+      {fehler === "gesperrt" ? (
+        // NFR03, Issue #47: Schutz gegen Passwort-Raten
         <p className="meldung fehler" role="alert">
-          E-Mail oder Passwort ist nicht korrekt.
+          Zu viele fehlgeschlagene Anmeldeversuche. Bitte warte {SPERRE_MINUTEN} Minuten und versuche es dann erneut.
         </p>
+      ) : (
+        fehler && (
+          <p className="meldung fehler" role="alert">
+            E-Mail oder Passwort ist nicht korrekt.
+          </p>
+        )
       )}
       <form action={anmelden} className="felder schmal">
         <input type="hidden" name="weiter" value={ziel} />

@@ -15,9 +15,12 @@ vi.mock("next/navigation", () => ({
   },
 }));
 vi.mock("@/server/db/verbindung", () => ({ holeDatenbank: async () => ({}) }));
+// Die Action meldet seit Issue #47 über `meldeAn` an (mit Schutz gegen Passwort-Raten); das Ergebnis ist hier ersetzt.
 vi.mock("@/server/auth/anmeldung", () => ({
-  pruefeZugangsdaten: async (_db: unknown, _email: string, passwort: string) =>
-    passwort === "richtig" ? { userId: "00000000-0000-4000-8000-000000000001", role: "MITGLIED" } : null,
+  meldeAn: async (_db: unknown, _email: string, passwort: string) =>
+    passwort === "richtig"
+      ? { ok: true, sitzung: { userId: "00000000-0000-4000-8000-000000000001", role: "MITGLIED" } }
+      : { ok: false, grund: "FALSCH" },
 }));
 vi.mock("@/server/auth/sitzung", () => ({ starteSitzung: async () => {}, beendeAktuelleSitzung: async () => {} }));
 

@@ -137,4 +137,16 @@ export const MIGRATIONEN: Migration[] = [
       `CREATE INDEX "loans_offen_faelligkeit_idx" ON "loans" USING btree ("due_date") WHERE returned_at IS NULL`,
     ],
   },
+  {
+    // NFR03, E06-US01-FR01 (Issue #47): Schutz gegen Passwort-Raten, Fehlversuche je E-Mail-Hash
+    id: "003_anmeldeschutz",
+    anweisungen: [
+      `CREATE TABLE "login_attempts" (
+       	"email_hash" text PRIMARY KEY NOT NULL,
+       	"failed_count" integer NOT NULL,
+       	"window_start" timestamp with time zone NOT NULL,
+       	"locked_until" timestamp with time zone
+       )`,
+    ],
+  },
 ];
