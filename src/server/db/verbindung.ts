@@ -42,7 +42,7 @@ async function verbinde(): Promise<Datenbank> {
     new PGlite({ dataDir: path.join(ordner, "pglite"), ...(await ladePgliteDateien()) }),
   );
   // Seed-Nutzer und Beispielbestand nur in der lokalen Entwicklung (ADR 003, Punkt 5)
-  if (process.env.NODE_ENV === "development") await legeEntwicklungsdatenAn(db, ordner);
+  if (process.env.NODE_ENV === "development") await legeEntwicklungsdatenAn(db);
   return db;
 }
 

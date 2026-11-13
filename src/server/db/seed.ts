@@ -1,18 +1,18 @@
 // Seed für die lokale Entwicklung (ADR 003, Punkt 5): je ein Konto pro Rolle und ein kleiner Beispielbestand.
-// Passwörter stehen nicht im Repo: sie kommen aus SEED_PASSWORT oder werden zufällig erzeugt und
-// in `.data/seed-zugaenge.txt` abgelegt (der Ordner ist von Git ausgeschlossen).
-import path from "node:path";
-import { randomBytes } from "node:crypto";
-import { writeFile } from "node:fs/promises";
+// Annahme (Spec schweigt, Wunsch des Teams): Die Test-Konten haben feste, bekannte Passwörter, die auch im
+// README stehen, damit sie nicht bei jedem Neuaufbau wechseln. Das ist nur vertretbar, weil dieser Seed
+// ausschließlich lokal im Entwicklungsmodus mit PGlite läuft (siehe verbindung.ts). Produktion und
+// DATABASE_URL bekommen keine Seed-Konten. SEED_PASSWORT überschreibt die festen Passwörter für alle Konten.
 import { count, sql } from "drizzle-orm";
 import { hashePasswort } from "../auth/passwort";
 import type { Datenbank } from "./index";
 import { titles, users, type Rolle } from "./schema";
 
-const KONTEN: { email: string; role: Rolle }[] = [
-  { email: "mitglied@bibliothek.test", role: "MITGLIED" },
-  { email: "bibliothekar@bibliothek.test", role: "BIBLIOTHEKAR" },
-  { email: "admin@bibliothek.test", role: "ADMINISTRATOR" },
+/** Test-Konten mit ihren festen Entwicklungs-Passwörtern (stehen auch im README, Abschnitt 4). */
+export const SEED_KONTEN: { email: string; role: Rolle; passwort: string }[] = [
+  { email: "mitglied@bibliothek.test", role: "MITGLIED", passwort: "Mitglied-2026" },
+  { email: "bibliothekar@bibliothek.test", role: "BIBLIOTHEKAR", passwort: "Bibliothekar-2026" },
+  { email: "admin@bibliothek.test", role: "ADMINISTRATOR", passwort: "Admin-2026" },
 ];
 
 const BEISPIELE = [
@@ -24,16 +24,12 @@ const BEISPIELE = [
   { title: "Grundkurs Software-Engineering", author: "Helmut Balzert", category: "Lehrbuch", publicationYear: 2009, isbn: null },
 ];
 
-export async function legeEntwicklungsdatenAn(db: Datenbank, ordner: string): Promise<void> {
+export async function legeEntwicklungsdatenAn(db: Datenbank): Promise<void> {
   const [{ n: nutzerAnzahl }] = await db.select({ n: count() }).from(users);
   if (Number(nutzerAnzahl) === 0) {
-    const passwort = process.env.SEED_PASSWORT || randomBytes(9).toString("base64url");
-    for (const konto of KONTEN) {
-      await db.insert(users).values({ ...konto, passwordHash: await hashePasswort(passwort) });
-    }
-    if (!process.env.SEED_PASSWORT) {
-      const zeilen = KONTEN.map((k) => `${k.role}: ${k.email} / ${passwort}`);
-      await writeFile(path.join(ordner, "seed-zugaenge.txt"), `${zeilen.join("\n")}\n`, { mode: 0o600 });
+    for (const { email, role, passwort } of SEED_KONTEN) {
+      const klartext = process.env.SEED_PASSWORT || passwort;
+      await db.insert(users).values({ email, role, passwordHash: await hashePasswort(klartext) });
     }
   }
 

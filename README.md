@@ -2,6 +2,18 @@
 
 Webbasierte Bibliotheks- und Inventarverwaltung nach der Anforderungsspezifikation von Prof. Petersen (HS Flensburg), Epics E01 bis E07. Gebaut mit Next.js und TypeScript. Die Spezifikation liegt unter [`docs/spezifikation.pdf`](docs/spezifikation.pdf), die Projektregeln stehen in [`CLAUDE.md`](CLAUDE.md).
 
+## Test-Konten zum Anmelden
+
+Nach dem Start (siehe [Schnellstart](#schnellstart)) unter <http://localhost:3000/anmelden> mit einem dieser Konten anmelden:
+
+| Rolle | E-Mail | Passwort |
+|---|---|---|
+| Mitglied | `mitglied@bibliothek.test` | `Mitglied-2026` |
+| Bibliothekar | `bibliothekar@bibliothek.test` | `Bibliothekar-2026` |
+| Administrator | `admin@bibliothek.test` | `Admin-2026` |
+
+Die Passwörter sind fest und ändern sich nicht. Die Konten gibt es nur lokal im Entwicklungsmodus (`npm run dev`), mehr dazu in [Abschnitt 4](#4-zugangsdaten-test-konten).
+
 ## Schnellstart
 
 ### 1. Was du installiert haben musst
@@ -42,19 +54,13 @@ Beim ersten Aufruf dauert es ein paar Sekunden, weil die Datenbank angelegt wird
 
 ### 4. Zugangsdaten (Test-Konten)
 
-| Rolle | E-Mail |
-|---|---|
-| Mitglied | `mitglied@bibliothek.test` |
-| Bibliothekar | `bibliothekar@bibliothek.test` |
-| Administrator | `admin@bibliothek.test` |
+Im Entwicklungsmodus (`npm run dev`) gibt es drei Test-Konten mit **festen Passwörtern**. E-Mail und Passwort stehen in der Tabelle [Test-Konten zum Anmelden](#test-konten-zum-anmelden) ganz oben. Sie ändern sich nicht, auch wenn die Datenbank neu aufgebaut wird.
 
-**Passwort:** Es wird beim ersten Start **zufällig erzeugt** und gilt für alle drei Konten. Du findest es in der Datei:
+> **Nur zum Testen.** Diese Konten gibt es nur lokal im Entwicklungsmodus mit der Datenbank in `.data/`. Mit `npm run build` / `npm start` oder mit `DATABASE_URL` werden sie **nicht** angelegt.
 
-```
-.data/seed-zugaenge.txt
-```
+**Anmeldung klappt nicht?** Wenn du die App schon einmal mit einer älteren Version gestartet hast, liegen in `.data/` noch die Konten mit dem alten, zufälligen Passwort. Dann einmal die App beenden, den Ordner **`.data/`** löschen und `npm run dev` neu starten (siehe Abschnitt 5). Danach gelten die Passwörter aus der Tabelle. Das hilft auch, wenn die Anmeldung nach mehreren falschen Versuchen für eine Weile gesperrt ist.
 
-Wer lieber ein eigenes Passwort möchte, setzt vor dem **ersten** Start die Umgebungsvariable `SEED_PASSWORT`. Dann gilt dieses Passwort und die Datei wird nicht angelegt.
+Wer lieber ein eigenes Passwort möchte, setzt vor dem **ersten** Start die Umgebungsvariable `SEED_PASSWORT`. Dann gilt dieses Passwort für alle drei Konten statt der Passwörter aus der Tabelle.
 
 ```powershell
 # Windows PowerShell
@@ -70,7 +76,7 @@ Neue Mitglieder können sich außerdem selbst unter <http://localhost:3000/regis
 
 ### 5. Alles zurücksetzen
 
-App beenden, den Ordner **`.data/`** löschen und `npm run dev` neu starten. Datenbank, Beispieldaten und ein neues Passwort werden dann frisch angelegt.
+App beenden, den Ordner **`.data/`** löschen und `npm run dev` neu starten. Datenbank, Beispieldaten und die Test-Konten (mit den Passwörtern aus Abschnitt 4) werden dann frisch angelegt.
 
 ### 6. Tägliche Jobs (Fristen, Mahnungen, Abholfristen)
 
@@ -109,7 +115,7 @@ Alle sind optional.
 
 | Variable | Wirkung |
 |---|---|
-| `SEED_PASSWORT` | festes Passwort für die Test-Konten (nur beim ersten Start) |
+| `SEED_PASSWORT` | eigenes Passwort für alle Test-Konten statt der festen aus Abschnitt 4 (nur beim ersten Start) |
 | `DATABASE_URL` | PostgreSQL statt lokaler Datenbank in `.data/` |
 | `JOB_SECRET` | schaltet die Job-Endpunkte für Aufrufe von außen frei |
 

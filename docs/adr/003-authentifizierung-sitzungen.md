@@ -21,7 +21,7 @@ Die Spezifikation verlangt: Anmeldung über E-Mail und Passwort, Passwörter nur
    - Zufälliges Token (32 Byte), im Cookie nur das Token, in der Datenbank nur dessen SHA-256-Hash.
    - Cookie: `HttpOnly`, `Secure` (außer lokal), `SameSite=Lax`, `Path=/`.
    - Abmelden löscht den Datensatz. Die Laufzeit einer Sitzung ist ein technischer Wert der Konfigurationsrolle.
-5. **Seed-Nutzer** werden nur von einem Seed-Skript für Entwicklung und Tests angelegt. In der gehosteten Instanz gibt es sie nicht. Ihre Passwörter stehen nicht im Repo, sondern werden beim Seeding erzeugt oder kommen aus der Umgebung.
+5. **Seed-Nutzer** werden nur von einem Seed-Skript für Entwicklung und Tests angelegt. In der gehosteten Instanz gibt es sie nicht. Ihre Passwörter sind feste, bekannte Test-Passwörter, die im README stehen (Änderung vom 13.11.2026, Wunsch des Teams, Annahme: Spec schweigt). Das ist nur vertretbar, weil der Seed ausschließlich lokal im Entwicklungsmodus mit PGlite läuft; `SEED_PASSWORT` aus der Umgebung überschreibt sie. Vorher wurden sie zufällig erzeugt und in `.data/seed-zugaenge.txt` abgelegt.
 
 ## Begründung
 
