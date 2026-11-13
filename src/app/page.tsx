@@ -1,6 +1,7 @@
 // F-01 · E01-US01 · Katalogseite: Suche, Filter und Sortierung auf einer Seite (NFR01), ohne Anmeldung.
 import Link from "next/link";
 import { erstelleOeffentlichenKontext } from "@/server/anfrage";
+import { Buchcover } from "./buchcover";
 import {
   ladeKategorien,
   sucheKatalog,
@@ -68,7 +69,11 @@ export default async function KatalogSeite({ searchParams }: PageProps<"/">) {
 
   return (
     <>
-      <h1>Katalog</h1>
+      {/* Issue #47: kurze Begrüßung über der Suche */}
+      <header className="buehne">
+        <h1>Katalog</h1>
+        <p>Finde Bücher nach Titel, Autor oder ISBN, sieh sofort, was verfügbar ist, und leih direkt aus.</p>
+      </header>
       <form method="get" action="/" className="felder" role="search">
         <label className="breit">
           Suchbegriff (Titel, Autor, ISBN oder Inventarnummer)
@@ -130,38 +135,33 @@ export default async function KatalogSeite({ searchParams }: PageProps<"/">) {
       ) : (
         <>
           <p role="status">
-            {ergebnis.daten.gesamt} {ergebnis.daten.gesamt === 1 ? "Treffer" : "Treffer"}
+            {ergebnis.daten.gesamt} Treffer
           </p>
-          <div className="tabelle-rahmen">
-            <table>
-              <thead>
-                <tr>
-                  <th>Titel</th>
-                  <th>Autor</th>
-                  <th>Kategorie</th>
-                  <th>Jahr</th>
-                  <th>Verfügbare Exemplare</th>
-                </tr>
-              </thead>
-              <tbody>
-                {ergebnis.daten.treffer.map((treffer) => (
-                  <tr key={treffer.titleId}>
-                    <td>
-                      <Link href={`/titel/${treffer.titleId}`}>{treffer.title}</Link>
-                    </td>
-                    <td>{treffer.author}</td>
-                    <td>{treffer.category}</td>
-                    <td>{treffer.publicationYear ?? "–"}</td>
-                    <td>
-                      <span className={treffer.verfuegbareExemplare > 0 ? "status status-verfuegbar" : "status status-ausgeliehen"}>
-                        {treffer.verfuegbareExemplare}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {/* F-01, Issue #47: Treffer als Karten, auf dem Handy untereinander, nichts wird abgeschnitten (NFR01, NFR05) */}
+          <ul className="katalog-raster">
+            {ergebnis.daten.treffer.map((treffer) => (
+              <li key={treffer.titleId} className="buchkarte">
+                <Buchcover titel={treffer.title} kategorie={treffer.category} />
+                <div className="buchkarte-text">
+                  <h2 className="buchkarte-titel">
+                    <Link href={`/titel/${treffer.titleId}`}>{treffer.title}</Link>
+                  </h2>
+                  <p className="buchkarte-autor">{treffer.author}</p>
+                  <p className="buchkarte-meta">
+                    {treffer.category}
+                    {treffer.publicationYear !== null && ` · ${treffer.publicationYear}`}
+                  </p>
+                  <p className="buchkarte-status">
+                    <span className={treffer.verfuegbareExemplare > 0 ? "status status-verfuegbar" : "status status-ausgeliehen"}>
+                      {treffer.verfuegbareExemplare > 0
+                        ? `${treffer.verfuegbareExemplare} ${treffer.verfuegbareExemplare === 1 ? "Exemplar" : "Exemplare"} verfügbar`
+                        : "Kein Exemplar verfügbar"}
+                    </span>
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
           <Blaettern parameter={parameter} seite={ergebnis.daten.seite} gesamt={ergebnis.daten.gesamt} />
         </>
       )}
