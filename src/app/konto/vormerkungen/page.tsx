@@ -21,7 +21,7 @@ export default async function MeineVormerkungen() {
           Detailseite vormerken.
         </p>
       ) : (
-        <div className="tabelle-rahmen">
+        <div className="tabelle-rahmen stapel">
           <table>
             <thead>
               <tr>
@@ -33,11 +33,11 @@ export default async function MeineVormerkungen() {
             <tbody>
               {liste.map((v) => (
                 <tr key={v.reservationId}>
-                  <td>
+                  <td data-label="Titel">
                     <Link href={`/titel/${v.titleId}`}>{v.title}</Link>
                   </td>
-                  <td>{v.status === "ABHOLBEREIT" ? "Abholbereit" : "Wartend"}</td>
-                  <td>
+                  <td data-label="Status">{v.status === "ABHOLBEREIT" ? "Abholbereit" : "Wartend"}</td>
+                  <td data-label="Hinweis">
                     {v.status === "ABHOLBEREIT"
                       ? `Exemplar ${v.inventoryNumber ?? "–"} liegt bereit. Abholen (ausleihen) bis einschließlich ${
                           v.pickupDeadline ? formatiereDatum(v.pickupDeadline) : "–"

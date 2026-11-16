@@ -6,6 +6,7 @@ import type { Datenbank } from "../db";
 import { sessions, users } from "../db/schema";
 import type { Sitzung } from "../kontext";
 import { getSetting } from "../settings";
+import { gesperrtBis, merkeFehlversuch, vergissFehlversuche } from "./anmeldeschutz";
 import { hashePasswort, pruefePasswort } from "./passwort";
 
 /** Laufzeit einer Sitzung: technischer Wert der Konfigurationsrolle (ADR 003), über die Einstellungen (ADR 006). */
@@ -30,6 +31,24 @@ export async function pruefeZugangsdaten(db: Datenbank, email: string, passwort:
   platzhalterHash ??= hashePasswort(randomBytes(16).toString("hex"));
   const passt = await pruefePasswort(passwort, nutzer?.passwordHash ?? (await platzhalterHash));
   return nutzer && passt ? { userId: nutzer.id, role: nutzer.role } : null;
+}
+
+export type AnmeldeErgebnis = { ok: true; sitzung: Sitzung } | { ok: false; grund: "FALSCH" } | { ok: false; grund: "GESPERRT"; bis: Date };
+
+/**
+ * Anmeldung mit Schutz gegen Passwort-Raten (NFR03, Issue #47): Während einer Sperre wird das Passwort
+ * gar nicht erst geprüft, auch ein richtiges nicht. Jeder Fehlversuch wird gezählt, Erfolg setzt die Zählung zurück.
+ */
+export async function meldeAn(db: Datenbank, email: string, passwort: string, jetzt: Date): Promise<AnmeldeErgebnis> {
+  const gesperrt = await gesperrtBis(db, email, jetzt);
+  if (gesperrt) return { ok: false, grund: "GESPERRT", bis: gesperrt };
+  const sitzung = await pruefeZugangsdaten(db, email, passwort);
+  if (sitzung) {
+    await vergissFehlversuche(db, email);
+    return { ok: true, sitzung };
+  }
+  const neueSperre = await merkeFehlversuch(db, email, jetzt);
+  return neueSperre ? { ok: false, grund: "GESPERRT", bis: neueSperre } : { ok: false, grund: "FALSCH" };
 }
 
 /** Legt eine Sitzung an und gibt das Token für das Cookie zurück. */

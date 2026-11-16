@@ -1,5 +1,6 @@
 // F-02 · E01-US02 · Detailseite eines Titels mit Exemplarstatus und Aktionen
 import Link from "next/link";
+import { Buchcover } from "../../buchcover";
 import { notFound } from "next/navigation";
 import { formatiereDatum } from "@/lib/datum";
 import { ladeTitelDetail } from "@/server/katalog/detail";
@@ -23,31 +24,37 @@ export default async function TitelSeite({ params }: PageProps<"/titel/[titleId]
       <p>
         <Link href="/">Zurück zum Katalog</Link>
       </p>
-      <h1>{titel.title}</h1>
-      <dl className="metadaten">
-        <dt>Autor</dt>
-        <dd>{titel.author}</dd>
-        <dt>Kategorie</dt>
-        <dd>{titel.category}</dd>
-        {titel.isbn && (
-          <>
-            <dt>ISBN</dt>
-            <dd>{titel.isbn}</dd>
-          </>
-        )}
-        {titel.publicationYear !== null && (
-          <>
-            <dt>Erscheinungsjahr</dt>
-            <dd>{titel.publicationYear}</dd>
-          </>
-        )}
-        {titel.description && (
-          <>
-            <dt>Beschreibung</dt>
-            <dd>{titel.description}</dd>
-          </>
-        )}
-      </dl>
+      {/* Issue #47: Platzhalter-Cover neben den Angaben */}
+      <div className="titelkopf">
+        <Buchcover titel={titel.title} kategorie={titel.category} gross />
+        <div className="titelkopf-text">
+          <h1>{titel.title}</h1>
+          <dl className="metadaten">
+            <dt>Autor</dt>
+            <dd>{titel.author}</dd>
+            <dt>Kategorie</dt>
+            <dd>{titel.category}</dd>
+            {titel.isbn && (
+              <>
+                <dt>ISBN</dt>
+                <dd>{titel.isbn}</dd>
+              </>
+            )}
+            {titel.publicationYear !== null && (
+              <>
+                <dt>Erscheinungsjahr</dt>
+                <dd>{titel.publicationYear}</dd>
+              </>
+            )}
+            {titel.description && (
+              <>
+                <dt>Beschreibung</dt>
+                <dd>{titel.description}</dd>
+              </>
+            )}
+          </dl>
+        </div>
+      </div>
 
       {titel.meineVormerkung && (
         // F-10 AK-01.5, AK-03.3: eigener Stand statt der Aktion „Vormerken“

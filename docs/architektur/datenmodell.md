@@ -155,6 +155,15 @@ Eindeutig (NFR04, ADR 007): `ERINNERUNG` je `(loan_id, due_date)`, `MAHNUNG` je 
 | `startedAt`, `finishedAt` | Zeitstempel | ja / nein | |
 | `ergebnis` | JSON | nein | Anzahl Erinnerungen, Mahnungen, Abläufe, Fehler |
 
+### `LoginAttempt` – Fehlversuche bei der Anmeldung (Issue #47, NFR03)
+
+| Feld | Typ | Pflicht | Regel |
+|---|---|---|---|
+| `emailHash` | Text | ja | Schlüssel; SHA-256 der normalisierten E-Mail (nie die Adresse selbst) |
+| `failedCount` | Zahl | ja | Fehlversuche im laufenden Zeitfenster |
+| `windowStart` | Zeitstempel | ja | Beginn des Zeitfensters |
+| `lockedUntil` | Zeitstempel | nein | gesperrt bis; Regeln in `security-architektur.md` 3 |
+
 ## Abgeleitete Werte (nicht gespeichert)
 
 | Wert | Regel | Quelle |
