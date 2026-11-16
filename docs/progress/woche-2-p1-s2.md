@@ -1,6 +1,6 @@
-# Progress Report Woche 2 (Sprint p1-s2, 30.10. bis 06.11.2026) – Team 1 (agentisch) – Zwischenstand
+# Progress Report Woche 2 (Sprint p1-s2, 30.10. bis 06.11.2026) – Team 1 (agentisch)
 
-Stand: Zwischenstand vom 02.11.2026. Stichtag Freitag 06.11.2026 12:00. Nach der Messung von Denis wird dieser Report abgeschlossen (Snapshot, Abnahme, Messung, Stunden neu berechnen).
+Stand: abgeschlossen am 06.11.2026. Stichtag Freitag 06.11.2026 12:00, gemessener Snapshot `12f9138` (Merge von #45, 02.11.2026).
 
 ## 1. Ziel der Woche
 
@@ -21,8 +21,11 @@ E04 und E05, Features F-08 bis F-10 (laut [`data/features.csv`](https://github.c
 | npm-Sicherheitslücke (config-request) | [#40](https://github.com/Kirillv2/bibliothek/issues/40) | [#41](https://github.com/Kirillv2/bibliothek/pull/41) | 02.11.2026 |
 | Eingebauter Zeitgeber für die täglichen Jobs (F-08) | [#42](https://github.com/Kirillv2/bibliothek/issues/42) | [#43](https://github.com/Kirillv2/bibliothek/pull/43) | 02.11.2026 |
 | README mit Schnellstart | – | [#44](https://github.com/Kirillv2/bibliothek/pull/44) | 02.11.2026 |
+| Wöchentliche Progress Reports (`docs/progress/`) | – | [#45](https://github.com/Kirillv2/bibliothek/pull/45) | 02.11.2026 |
 
 Offen: config-request [#30](https://github.com/Kirillv2/bibliothek/issues/30) (täglicher Aufruf per GitHub Actions, braucht eine gehostete Instanz; durch den Zeitgeber aus #43 nicht mehr nötig für den lokalen Betrieb).
+
+**Abnahme** durch Denis am 06.11.2026 im Snapshot `12f9138` gegen die FRs: alle Checks von F-08 bis F-13 bestanden (F-11 bis F-13 vorgezogen aus Woche 3), mit Notizen je Feature in [`abnahme.csv`](https://github.com/DenisA1103/evaluation/blob/1c0a255c1950bc9db720e5bf3104709794ba86f4/data/team-1/abnahme.csv).
 
 Abgleich mit der Spezifikation am 02.11.2026: jede FR von E01 bis E07 hat Tests (`npm run fr-abdeckung`), alle Testarten grün, [CI-Lauf auf `main`](https://github.com/Kirillv2/bibliothek/actions/runs/41449875172).
 
@@ -35,13 +38,13 @@ Abgleich mit der Spezifikation am 02.11.2026: jede FR von E01 bis E07 hat Tests 
 | Tom, Mohammad | Team | Abstimmungen mit Kirill (Stunden als Schätzung „gleiche Dauer wie Kirill“) |
 | Claude (Agenten) | alle fünf Rollen | Planning, Tests, Umsetzung F-08 bis F-13, Design, Zeitgeber, README |
 
-**Stunden bisher** (berechnet aus [`zeiterfassung.csv` @ 4c64e37](https://github.com/DenisA1103/evaluation/blob/4c64e37cf5e397ced4d084669180b2f0bfbf4a1c/data/team-1/zeiterfassung.csv), Einträge 30.10. bis 02.11.2026):
+**Stunden** (berechnet aus [`zeiterfassung.csv` @ 1c0a255](https://github.com/DenisA1103/evaluation/blob/1c0a255c1950bc9db720e5bf3104709794ba86f4/data/team-1/zeiterfassung.csv), Einträge 30.10. bis 05.11.2026; nach dem 02.11.2026 gibt es für Team 1 keine Einträge):
 
 | Claude | Kirill | Jegor | Tom | Mohammad |
 |---:|---:|---:|---:|---:|
 | 2,5 h | 1,25 h | 1,75 h | 1,25 h | 1,25 h |
 
-**Commits auf `main` bisher** (nach Commit-Datum ab 30.10.2026 12:00, Stand `caff5a2`): ohne Merges Claude 23. Merges: Claude 10 (Branch-Aktualisierungen), Jegor55 9, Kirillv2 2.
+**Commits auf `main`** (nach Commit-Datum im Sprint-Fenster, letzter Commit `12f9138`): ohne Merges Claude 24. Merges: Claude 10 (Branch-Aktualisierungen), Jegor55 10, Kirillv2 2.
 
 ```bash
 git shortlog -sn --no-merges --since="2026-10-30T12:00:00+01:00" --until="2026-11-06T12:00:00+01:00" origin/main
@@ -50,7 +53,7 @@ git shortlog -sn --merges    --since="2026-10-30T12:00:00+01:00" --until="2026-1
 
 ## 4. Messung
 
-Die se-eval-Messung `p1-s2` macht Denis nach dem Stichtag 06.11.2026 12:00. Link folgt: `results/team-1/p1-s2/` im Evaluations-Repo.
+se-eval-Messung `p1-s2` vom 06.11.2026 (mit Mutation Testing): [`results/bericht.md`](https://github.com/DenisA1103/evaluation/blob/1c0a255c1950bc9db720e5bf3104709794ba86f4/results/bericht.md), Rohdaten unter [`results/team-1/p1-s2/`](https://github.com/DenisA1103/evaluation/tree/1c0a255c1950bc9db720e5bf3104709794ba86f4/results/team-1/p1-s2) (statische Analyse, Tests, Coverage, Mutation Testing, Git, Features, Aufwand). Der Bericht stellt p1-s1 und p1-s2 nebeneinander.
 
 ## 5. Entscheidungen und Probleme
 
@@ -62,4 +65,4 @@ Die se-eval-Messung `p1-s2` macht Denis nach dem Stichtag 06.11.2026 12:00. Link
 
 ## 6. Ausblick
 
-Bis zum Stichtag 06.11.: Zeiterfassung vollständig. Woche 3 (Code-Freeze 13.11.): keine Features mehr offen; Browser-Check Firefox/Safari (NFR05), UX-Tests nach dem Code-Freeze laut Evaluations-Repo.
+Woche 3 (Code-Freeze 13.11.): keine Features mehr offen, alle Features F-01 bis F-13 sind abgenommen. Offen: Browser-Check Firefox/Safari (NFR05, manuell), UX-Tests nach dem Code-Freeze laut Evaluations-Repo, Report für Woche 3.
