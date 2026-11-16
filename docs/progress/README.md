@@ -7,7 +7,7 @@ Die Kursbeschreibung verlangt je Team „wöchentliche Progress Reports als lauf
 | Einrichtung | 16.10. bis 23.10.2026 | – (wird nicht gemessen) | [woche-0-einrichtung.md](woche-0-einrichtung.md) |
 | 1 | 23.10. bis 30.10.2026 | `p1-s1` | [woche-1-p1-s1.md](woche-1-p1-s1.md) |
 | 2 | 30.10. bis 06.11.2026 | `p1-s2` | [woche-2-p1-s2.md](woche-2-p1-s2.md) |
-| 3 | 06.11. bis 13.11.2026 (Code-Freeze) | `p1-s3` | folgt nach dem Stichtag |
+| 3 | 06.11. bis 13.11.2026 (Code-Freeze) | `p1-s3` | [woche-3-p1-s3.md](woche-3-p1-s3.md) |
 
 ## Aufbau jedes Reports
 
